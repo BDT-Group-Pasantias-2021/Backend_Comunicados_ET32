@@ -41,6 +41,29 @@ app.route("/Frontend_Comunicados_ET32/register").post(function (req, res) {
 	}
 });
 
+app.route("/Frontend_Comunicados_ET32/validateSession").post(function (req, res) {
+  let data = req.body;
+  let sql = `SELECT bdt_cuaderno.refresh_session(${data.sessionID}, ${data.sessionEmail})`;
+  try {
+    pool.getConnection(function(err, connection){
+        if (err) throw err;
+            connection.query(sql, function (err, result) {
+              if (err) throw err;
+              let refreshAccepted = Object.values(JSON.parse(JSON.stringify(result[0])));
+              if (refreshAccepted == 1){
+                console.log("test");
+                req.session.touch();
+                res.send("HECHO");
+              }
+              console.log(result);
+            })
+    });
+  }catch (error) {
+		console.log(error);
+	}
+
+});
+
   app.route("/Frontend_Comunicados_ET32/login").post(async function (req, res) {
     const data = req.body;
     req.session.cookie.email = data.email;
@@ -49,18 +72,23 @@ app.route("/Frontend_Comunicados_ET32/register").post(function (req, res) {
         pool.getConnection(function(err, connection){
             if (err) throw err;
                 connection.query(sql, function (err, result) {
-                    req.session.email = data.email;
-                    req.session.save();
+
                     if (err) throw err;
                     let loginAccepted = Object.values(JSON.parse(JSON.stringify(result[0])));
                     if(loginAccepted == 1) {
                       let sqlSession = `SELECT bdt_cuaderno.restrict_session("${req.sessionID}", "${data.email}")`;
-
+                      let testVar = { sessionID: req.sessionID, status: 'success' };
+                      res.json(testVar);
+                      req.session.email = data.email;
+                      req.session.save();
                       connection.query(sqlSession, function (err2, resulta2) {
                         if (err2) throw err2;
                         console.log(resulta2[0]);
+                        let singleSession = Object.values(JSON.parse(JSON.stringify(result[0])));
+                        if (singleSession == 1) {
+
+                        }
                       });
-                      res.json(req.sessionID);
                     }else{
                       res.send("Usuario o contraseña incorrectos.");
                     }
@@ -74,5 +102,5 @@ app.route("/Frontend_Comunicados_ET32/register").post(function (req, res) {
 });
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}!`)
+  console.log(`Example app listening on port ${port}!`) 
 });
