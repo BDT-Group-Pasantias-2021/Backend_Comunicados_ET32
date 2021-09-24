@@ -5,9 +5,10 @@ const session = require('express-session');
 const database = require("./db_connection");
 const genuuid=require('uuid');
 const mysqlsessionstore = require("./session_store");
-
-var pool = database.newPool();
-var sessionStore = mysqlsessionstore.createStore();
+const mailer = require("./email/template/send_email");
+const sendEmail = require("./email/template/send_email");
+let pool = database.newPool();
+let sessionStore = mysqlsessionstore.createStore();
 
 const app = express();
 const port = 3001;
@@ -40,6 +41,15 @@ app.route("/Frontend_Comunicados_ET32/register").post(function (req, res) {
 		console.log(error);
 	}
 });
+
+
+
+app.route("/Frontend_Comunicados_ET32/recoverPassword").get(function (req, res) {
+  sendEmail( { name: "PEKAS", link : "www.slack.com" },
+    "./requestResetPassword.handlebars"
+  );
+});
+
 
 app.route("/Frontend_Comunicados_ET32/validateSession").post(function (req, res) {
   let data = req.body;
