@@ -17,7 +17,7 @@ const sendEmail = async (payload,template) => {
     const compiledTemplate = handlebars.compile(source);
     let mailOptions = {
       from: 'bdtgroup@killout.com',
-      to: 'lucastisera02@gmail.com',
+      to: 'juanaubone1234@gmail.com',
       subject: 'Sending Email using Node.js',
       text: 'That was easy!',
       html:  compiledTemplate(payload)

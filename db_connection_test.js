@@ -44,10 +44,63 @@ app.route("/Frontend_Comunicados_ET32/register").post(function (req, res) {
 
 
 
-app.route("/Frontend_Comunicados_ET32/recoverPassword").get(function (req, res) {
-  sendEmail( { name: "PEKAS", link : "www.slack.com" },
-    "./requestResetPassword.handlebars"
-  );
+app.route("/Frontend_Comunicados_ET32/recoverPassword").post(function (req, res) {
+   const data = req.body;
+  let sqlRecovery = `select pass_recovery('${data.documento}', '${data.email}')`;
+  let sqlTokenId = `SELECT recovery_token FROM personas where email = "${data.email}";`;
+  try {
+    pool.getConnection(function(err, connection){
+
+        if (err) throw err;
+            connection.query(sqlRecovery, function (err, result) {
+              if (err) throw err;
+              let isNewToken = Object.values(result[0])[0];
+              if(isNewToken === "0"){
+                res.send("TIMESTAMP -> ESPERAR 30 MINUTOS  ");
+                //TIMESTAMP -> ESPERAR 30 MINUTOS  
+                console.log("TIMESTAMP -> ESPERAR 30 MINUTOS ");
+                return; 
+              }
+              console.log();
+              connection.query(sqlTokenId, function (err, result) {
+                if (err) throw err;
+                if(result[0] === undefined){return};
+                console.log(result[0]);
+                let recoveryToken = result[0].recovery_token;
+                console.log(data.email);
+                console.log(recoveryToken);
+                dynamicToken(data.email , recoveryToken).then( ()=> {
+                  
+                  sendEmail( { name: "Juancito", link : `localhost:3001/Frontend_Comunicados_ET32/recoverPassword/${recoveryToken}` },
+                 "./test.handlebars"
+                 );
+                }); 
+              })
+            })
+    });
+  }catch (error) {
+		console.log(error);
+	}
+});
+
+let dynamicToken = (email,recoveryToken) => new Promise(function(resolve, reject){
+  let sql = `select token_recovery('${email}', '${recoveryToken}', 'password', 'password')`;
+  app.route(`/Frontend_Comunicados_ET32/recoverPassword/${recoveryToken}`).get(function (req, res) {
+    
+    try {
+      pool.getConnection(function(err, connection){
+          if (err) throw err;
+              connection.query(sql, function (err, result) {
+                if (err) throw err;
+                  console.log("test");
+                 res.send(result[0]);
+              })
+      });
+    }catch (error) {
+     console.log(error);
+    }
+  });
+  resolve(sql);
 });
 
 
