@@ -100,7 +100,8 @@ app.route("/Frontend_Comunicados_ET32/recoverPassword").post(function (req, res)
                 console.log(recoveryToken);
                 getName(data.email).then(dynamicToken(data.email , recoveryToken)).then((userName) => {
                   console.log(userName);
-                  sendEmail( { name : userName, link : `localhost:3001/Frontend_Comunicados_ET32/recoverPassword/${recoveryToken}`},
+                    
+                  sendEmail( { name : userName, link : `localhost:3001/Frontend_Comunicados_ET32/recoverPassword?change-password=${recoveryToken}`},
                       "./test.handlebars",
                       data.email
                       );
