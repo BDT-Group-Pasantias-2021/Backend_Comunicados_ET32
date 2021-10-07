@@ -69,18 +69,36 @@ app.route("/Frontend_Comunicados_ET32/recoverPassword").post(function (req, res)
                 let recoveryToken = result[0].recovery_token;
                 console.log(data.email);
                 console.log(recoveryToken);
-                dynamicToken(data.email , recoveryToken).then( ()=> {
-                  
-                  sendEmail( { name: "Juancito", link : `localhost:3001/Frontend_Comunicados_ET32/recoverPassword/${recoveryToken}` },
-                 "./test.handlebars"
-                 );
-                }); 
+                getName(data.email).then(dynamicToken(data.email , recoveryToken)).then((userName) => {
+                  console.log(userName);
+                  sendEmail( { name : userName, link : `localhost:3001/Frontend_Comunicados_ET32/recoverPassword/${recoveryToken}`},
+                      "./test.handlebars",
+                      data.email
+                      );
+                  });
               })
             })
     });
   }catch (error) {
 		console.log(error);
 	}
+});
+
+let getName = (email) => new Promise(function(resolve, reject){
+  let sqlNombre = `select nombre from personas where email = '${email}'`;
+  try {
+    pool.getConnection(function(err, connection){
+        if (err) throw err;
+            connection.query(sqlNombre, function (err, result) {
+              if (err) throw err;
+              let userName = result[0].nombre;
+              resolve(userName);
+            })
+    });
+  }catch (error) {
+    console.log(error);
+    reject(error);
+  }
 });
 
 let dynamicToken = (email,recoveryToken) => new Promise(function(resolve, reject){
@@ -127,41 +145,43 @@ app.route("/Frontend_Comunicados_ET32/validateSession").post(function (req, res)
 
 });
 
-  app.route("/Frontend_Comunicados_ET32/login").post(async function (req, res) {
-    const data = req.body;
-    req.session.cookie.email = data.email;
-    let sql = `SELECT bdt_cuaderno.login_user_node_session("${data.email}", "${data.password}")`;
-	try {
-        pool.getConnection(function(err, connection){
-            if (err) throw err;
-                connection.query(sql, function (err, result) {
+app.route("/Frontend_Comunicados_ET32/login").post(async function (req, res) {
+  const data = req.body;
+  req.session.cookie.email = data.email;
+  let sql = `SELECT bdt_cuaderno.login_user_node_session("${data.email}", "${data.password}")`;
+  try {
+      pool.getConnection(function(err, connection){
+          if (err) throw err;
+              connection.query(sql, function (err, result) {
 
-                    if (err) throw err;
-                    let loginAccepted = Object.values(JSON.parse(JSON.stringify(result[0])));
-                    if(loginAccepted == 1) {
-                      let sqlSession = `SELECT bdt_cuaderno.restrict_session("${req.sessionID}", "${data.email}")`;
-                      let testVar = { sessionID: req.sessionID, status: 'success' };
-                      res.json(testVar);
-                      req.session.email = data.email;
-                      req.session.save();
-                      connection.query(sqlSession, function (err2, resulta2) {
-                        if (err2) throw err2;
-                        console.log(resulta2[0]);
-                        let singleSession = Object.values(JSON.parse(JSON.stringify(result[0])));
-                        if (singleSession == 1) {
+                  if (err) throw err;
+                  let loginAccepted = Object.values(JSON.parse(JSON.stringify(result[0])));
+                  if(loginAccepted == 1) {
+                    let sqlSession = `SELECT bdt_cuaderno.restrict_session("${req.sessionID}", "${data.email}")`;
 
-                        }
-                      });
-                    }else{
-                      res.send("Usuario o contraseña incorrectos.");
-                    }
-                    return;
-                });
-                connection.release();
-        });
-	} catch (error) {
-		console.log(error);
-	}
+                    req.session.email = data.email;
+                    req.session.save();
+                    connection.query(sqlSession, function (err2, resulta2) {
+                      if (err2) throw err2;
+                      console.log(resulta2[0]);
+                      let singleSession = Object.values(JSON.parse(JSON.stringify(resulta2[0])));
+                      if (singleSession == 1) {
+                        let testVar = { sessionID: req.sessionID, status: 'success' };
+                        res.json(testVar);
+                      }else{
+                        res.send("Ya existe una sesión para este usuario.");
+                      }
+                    });
+                  }else{
+                    res.send("Usuario o contraseña incorrectos.");
+                  }
+                  return;
+              });
+              connection.release();
+      });
+  } catch (error) {
+      console.log(error);
+  }
 });
 
 app.listen(port, () => {
