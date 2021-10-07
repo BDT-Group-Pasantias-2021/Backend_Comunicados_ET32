@@ -24,7 +24,7 @@ app.route("/Frontend_Comunicados_ET32/register").post(function (req, res) {
     //
     const data = req.body;
     let sql = `SELECT insert_user(${data.documento}, "${data.nombre}", "${data.apellido}", '2000-11-11', '0000000000', '1', '${data.email}', '${data.password}', '${data.confirmar_contraseña}', ${data.tipo_documento})`;
-	try {
+	  try {
 		pool.getConnection(function(err, connection){
             if (err) throw err;
             connection.query(sql, function (err, result) {
@@ -32,11 +32,40 @@ app.route("/Frontend_Comunicados_ET32/register").post(function (req, res) {
                 let registerAccepted = Object.values(JSON.parse(JSON.stringify(result[0])));
                 console.log(registerAccepted);
                 console.log(JSON.parse(JSON.stringify(result[0])));
-                res.json(registerAccepted);
-                connection.release();
-                return;
+/* res.json(registerAccepted);*/        
+                /* return */;
+      let sqlRegister = `SELECT bdt_cuaderno.login_user_node_session("${data.email}", "${data.password}")`;
+        pool.getConnection(function(err, connection){
+              if (err) throw err;
+                  connection.query(sqlRegister, function (err, result) {
+          
+                      if (err) throw err;
+                      let loginAccepted = Object.values(JSON.parse(JSON.stringify(result[0])));
+                      if(loginAccepted == 1) {
+                        let sqlSession = `SELECT bdt_cuaderno.restrict_session("${req.sessionID}", "${data.email}")`;
+    
+                        req.session.email = data.email;
+                        req.session.save();
+                        connection.query(sqlSession, function (err2, resulta2) {
+                          if (err2) throw err2;
+                          console.log(resulta2[0]);
+                          let singleSession = Object.values(JSON.parse(JSON.stringify(resulta2[0])));
+                          if (singleSession == 1) {
+                            let testVar = { sessionID: req.sessionID, status: 'success' };
+                            res.json(testVar);
+                          }else{
+                            res.send("Ya existe una sesión para este usuario.");
+                          }
+                        });
+                      }else{
+                        res.send("Usuario o contraseña incorrectos.");
+                      }
+                      return;
+                  });
+                  connection.release();
                 });
-        });
+              });
+            });
 	} catch (error) {
 		console.log(error);
 	}
