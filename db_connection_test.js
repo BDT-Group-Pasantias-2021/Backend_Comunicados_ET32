@@ -101,7 +101,7 @@ app.route('/Frontend_Comunicados_ET32/recoverPassword').post(function (req, res)
                   sendEmail(
                     {
                       name: userName,
-                      link: `localhost:3000/Frontend_Comunicados_ET32?change-password=${recoveryToken}`,
+                      link: `localhost:3000/Frontend_Comunicados_ET32?change-password=${recoveryToken}&email=${data.email}`,
                     },
                     './test.handlebars',
                     data.email
@@ -168,7 +168,7 @@ let getName = (email) =>
           res.json(response);
         }else if (returnValue === '2'){ //returnValue 2: el token es inválido o ya ha sido usado
           let response = {status: 3}; //3: token inválido
-          res.json(response)
+          res.json(response);
         }
       })
     }catch (error) {
