@@ -163,10 +163,15 @@ let getName = (email) =>
     try{
       dynamicToken(data.recovery_token, data.new_password, data.confirm_new_password).then((returnValue) => {
         console.log(returnValue)
-        let response = {status: 1 }; //1: contraseña cambiada
-        res.json(response);
+        if(returnValue === '1'){
+          let response = {status: 1 }; //1: contraseña cambiada
+          res.json(response);
+        }else if (returnValue === '2'){ //returnValue 2: el token es inválido o ya ha sido usado
+          let response = {status: 3}; //3: token inválido
+          res.json(response)
+        }
       })
-    }catch{
+    }catch (error) {
       console.log(error);
       let response = {status: 2 }; //2: error
       res.json(response);
