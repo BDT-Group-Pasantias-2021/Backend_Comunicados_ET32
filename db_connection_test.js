@@ -79,39 +79,44 @@ app.route('/Frontend_Comunicados_ET32/recoverPassword').post(function (req, res)
 				if (err) throw err;
 				let isNewToken = Object.values(result[0])[0];
 				if (isNewToken === '0') {
-					res.send('TIMESTAMP -> ESPERAR 30 MINUTOS  ');
+          let testVar = {status: 2 }; // 2: timeout, esperar 30m
+					res.json(testVar);
 					//TIMESTAMP -> ESPERAR 30 MINUTOS
 					console.log('TIMESTAMP -> ESPERAR 30 MINUTOS ');
 					return;
-				}
-				console.log();
-				connection.query(sqlTokenId, function (err, result) {
-					if (err) throw err;
-					if (result[0] === undefined) {
-						return;
-					}
-					console.log(result[0]);
-					let recoveryToken = result[0].recovery_token;
-					console.log(data.email);
-					console.log(recoveryToken);
-					getName(data.email)
-						.then(dynamicToken(data.email, recoveryToken))
-						.then((userName) => {
-							console.log(userName);
+				} else {
+            connection.query(sqlTokenId, function (errToken, resultGetToken) {
+              if (errToken) throw errToken;
+              if (resultGetToken[0] === undefined) {
+                return;
+              }
+              console.log(resultGetToken[0]);
+              let recoveryToken = resultGetToken[0].recovery_token;
+              console.log(data.email);
+              console.log(recoveryToken);
+              getName(data.email)
+                .then((userName) => {
+                  console.log(userName);
+    
+                  sendEmail(
+                    {
+                      name: userName,
+                      link: `localhost:3000/Frontend_Comunicados_ET32?change-password=${recoveryToken}`,
+                    },
+                    './test.handlebars',
+                    data.email
+                  );
+                  let testVar = {status: 1 }; //1: completado
+                  res.json(testVar)
+                });
+            });
+        }
 
-							sendEmail(
-								{
-									name: userName,
-									link: `localhost:3001/Frontend_Comunicados_ET32/recoverPassword?change-password=${recoveryToken}`,
-								},
-								'./test.handlebars',
-								data.email
-							);
-						});
-				});
 			});
 		});
 	} catch (error) {
+    let testVar = {status: 3 };
+    res.json(testVar);
 		console.log(error);
 	}
 });
@@ -134,25 +139,42 @@ let getName = (email) =>
 		}
 	});
 
-let dynamicToken = (email, recoveryToken) =>
+  let dynamicToken = (recoveryToken, newPass, newRePass) =>
 	new Promise(function (resolve, reject) {
-		let sql = `select token_recovery('${email}', '${recoveryToken}', 'password', 'password')`;
-		app.route(`/Frontend_Comunicados_ET32/recoverPassword/${recoveryToken}`).get(function (req, res) {
+		let sql = `select token_recovery( '${recoveryToken}', '${newPass}', '${newRePass}')`;
 			try {
 				pool.getConnection(function (err, connection) {
 					if (err) throw err;
 					connection.query(sql, function (err, result) {
 						if (err) throw err;
 						console.log('test');
-						res.send(result[0]);
+            resolve(result[0]);
 					});
 				});
 			} catch (error) {
 				console.log(error);
+        reject(error);
 			}
-		});
-		resolve(sql);
 	});
+
+  app.route('/Frontend_Comunicados_ET32/setNewPassword').post(function (req, res) {
+    let data = req.body;
+    console.log("hi");
+    try{
+      dynamicToken(data.recovery_token, data.new_password, data.confirm_new_password).then((returnValue) => {
+        console.log(returnValue)
+        let response = {status: 1 }; //1: contraseña cambiada
+        res.json(response);
+      })
+    }catch{
+      console.log(error);
+      let response = {status: 2 }; //2: error
+      res.json(response);
+    }
+
+  });
+
+
 
 app.route('/Frontend_Comunicados_ET32/validateSession').post(function (req, res) {
 	let data = req.body;
