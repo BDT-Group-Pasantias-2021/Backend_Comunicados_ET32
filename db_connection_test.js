@@ -1,3 +1,4 @@
+/* eslint-disable eqeqeq */
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -79,44 +80,42 @@ app.route('/Frontend_Comunicados_ET32/recoverPassword').post(function (req, res)
 				if (err) throw err;
 				let isNewToken = Object.values(result[0])[0];
 				if (isNewToken === '0') {
-          let testVar = {status: 2 }; // 2: timeout, esperar 30m
+					let testVar = { status: 2 }; // 2: timeout, esperar 30m
 					res.json(testVar);
 					//TIMESTAMP -> ESPERAR 30 MINUTOS
 					console.log('TIMESTAMP -> ESPERAR 30 MINUTOS ');
 					return;
 				} else {
-            connection.query(sqlTokenId, function (errToken, resultGetToken) {
-              if (errToken) throw errToken;
-              if (resultGetToken[0] === undefined) {
-                return;
-              }
-              console.log(resultGetToken[0]);
-              let recoveryToken = resultGetToken[0].recovery_token;
-              console.log(data.email);
-              console.log(recoveryToken);
-              getName(data.email)
-                .then((userName) => {
-                  console.log(userName);
-    
-                  sendEmail(
-                    {
-                      name: userName,
-                      link: `localhost:3000/Frontend_Comunicados_ET32?change-password=${recoveryToken}&email=${data.email}`,
-                    },
-                    './test.handlebars',
-                    data.email
-                  );
-                  let testVar = {status: 1 }; //1: completado
-                  res.json(testVar)
-                });
-            });
-        }
+					connection.query(sqlTokenId, function (errToken, resultGetToken) {
+						if (errToken) throw errToken;
+						if (resultGetToken[0] === undefined) {
+							return;
+						}
+						console.log(resultGetToken[0]);
+						let recoveryToken = resultGetToken[0].recovery_token;
+						console.log(data.email);
+						console.log(recoveryToken);
+						getName(data.email).then((userName) => {
+							console.log(userName);
 
+							sendEmail(
+								{
+									name: userName,
+									link: `localhost:3000/Frontend_Comunicados_ET32?change-password=${recoveryToken}&email=${data.email}`,
+								},
+								'./test.handlebars',
+								data.email
+							);
+							let testVar = { status: 1 }; //1: completado
+							res.json(testVar);
+						});
+					});
+				}
 			});
 		});
 	} catch (error) {
-    let testVar = {status: 3 };
-    res.json(testVar);
+		let testVar = { status: 3 };
+		res.json(testVar);
 		console.log(error);
 	}
 });
@@ -139,47 +138,45 @@ let getName = (email) =>
 		}
 	});
 
-  let dynamicToken = (recoveryToken, newPass, newRePass) =>
+let dynamicToken = (recoveryToken, newPass, newRePass) =>
 	new Promise(function (resolve, reject) {
 		let sql = `select token_recovery( '${recoveryToken}', '${newPass}', '${newRePass}')`;
-			try {
-				pool.getConnection(function (err, connection) {
+		try {
+			pool.getConnection(function (err, connection) {
+				if (err) throw err;
+				connection.query(sql, function (err, result) {
 					if (err) throw err;
-					connection.query(sql, function (err, result) {
-						if (err) throw err;
-						console.log('test');
-            resolve(result[0]);
-					});
+					console.log('test');
+					resolve(result[0]);
 				});
-			} catch (error) {
-				console.log(error);
-        reject(error);
-			}
+			});
+		} catch (error) {
+			console.log(error);
+			reject(error);
+		}
 	});
 
-  app.route('/Frontend_Comunicados_ET32/setNewPassword').post(function (req, res) {
-    let data = req.body;
-    console.log("hi");
-    try{
-      dynamicToken(data.recovery_token, data.new_password, data.confirm_new_password).then((returnValue) => {
-        console.log(returnValue)
-        if(returnValue === '1'){
-          let response = {status: 1 }; //1: contraseña cambiada
-          res.json(response);
-        }else if (returnValue === '2'){ //returnValue 2: el token es inválido o ya ha sido usado
-          let response = {status: 3}; //3: token inválido
-          res.json(response);
-        }
-      })
-    }catch (error) {
-      console.log(error);
-      let response = {status: 2 }; //2: error
-      res.json(response);
-    }
-
-  });
-
-
+app.route('/Frontend_Comunicados_ET32/setNewPassword').post(function (req, res) {
+	let data = req.body;
+	console.log('hi');
+	try {
+		dynamicToken(data.recovery_token, data.new_password, data.confirm_new_password).then((returnValue) => {
+			console.log(returnValue);
+			if (returnValue === '1') {
+				let response = { status: 1 }; //1: contraseña cambiada
+				res.json(response);
+			} else if (returnValue === '2') {
+				//returnValue 2: el token es inválido o ya ha sido usado
+				let response = { status: 3 }; //3: token inválido
+				res.json(response);
+			}
+		});
+	} catch (error) {
+		console.log(error);
+		let response = { status: 2 }; //2: error
+		res.json(response);
+	}
+});
 
 app.route('/Frontend_Comunicados_ET32/validateSession').post(function (req, res) {
 	let data = req.body;
