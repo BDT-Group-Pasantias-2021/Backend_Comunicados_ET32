@@ -97,10 +97,23 @@ app.route('/Frontend_Comunicados_ET32/recoverPassword').post(function (req, res)
 						console.log(recoveryToken);
 						getName(data.email).then((userName) => {
 							console.log(userName);
-
+              let now= new Date();
+              let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+              function addZero(i) {
+                if (i < 10) {i = "0" + i}
+                return i;
+              }
+              let h = addZero(now.getHours());
+              let m = addZero(now.getMinutes());
+              let s = addZero(now.getSeconds());
+              let hora = h + ":" + m + ":" + s;
+              
+              let fecha  = now.toLocaleDateString("es-ES", options);
 							sendEmail(
 								{
 									name: userName,
+                  hours: hora,
+                  date: fecha,
 									link: `localhost:3000/Frontend_Comunicados_ET32?change-password=${recoveryToken}&email=${data.email}`,
 								},
 								'./test.handlebars',
