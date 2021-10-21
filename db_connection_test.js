@@ -178,18 +178,19 @@ app.route('/Frontend_Comunicados_ET32/setNewPassword').post(function (req, res) 
 	try {
 		dynamicToken(data.recovery_token, data.new_password, data.confirm_new_password).then((returnValue) => {
 			console.log(returnValue);
-			if (returnValue === '1') {
+			let isNewToken = Object.values(returnValue)[0];
+			if (isNewToken == '1') {
 				let response = { status: 1 }; //1: contraseña cambiada
 				res.json(response);
-			} else if (returnValue === '2') {
+			} else if (isNewToken == '2') {
 				//returnValue 2: el token es inválido o ya ha sido usado
-				let response = { status: 3 }; //3: token inválido
+				let response = { status: 2 }; //3: token inválido
 				res.json(response);
 			}
 		});
 	} catch (error) {
 		console.log(error);
-		let response = { status: 2 }; //2: error
+		let response = { status: 3 }; //2: error
 		res.json(response);
 	}
 });
