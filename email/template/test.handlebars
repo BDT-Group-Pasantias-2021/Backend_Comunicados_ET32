@@ -1,8 +1,14 @@
 <html>
 	<style>
 		@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@200;300;400;600;700;800;900&display=swap'); *
-		{ margin: 0; padding: 0; box-sizing: border-box; border-spacing: 0; font-family: 'Nunito'; }
+		{ margin: 0; padding: 0; box-sizing: border-box; border-spacing: 0; font-family: 'Nunito'; color: #000;}
 	</style>
+	<head>
+		<link
+			href='https://fonts.googleapis.com/css2?family=Nunito:wght@200;300;400;600;700;800;900&display=swap'
+			rel='stylesheet'
+		/>
+	</head>
 	<body>
 		<div style='width: 100%; height: 100%; background-color: #fff'>
 			<div
@@ -61,17 +67,19 @@
 						border-radius: 0px 0px 10px 10px;
 					'
 					>
-						<h1 style='font-size: 25px'>Peticion de cambio de contraseña</h1>
+						<h1 style='font-size: 25px; margin-top: 0;'>Peticion de cambio de contraseña</h1>
 						<p style='margin-top: 18px'>Estimado/a <b>{{name}}</b></p>
 						<p style='margin-top: 20px'>
 							Hemos notado que recientemente se ha solicitado una petición para cambiar la contaseña
 							destinada a este correo electrónico:
 						</p>
-						<div style='margin: 24px 0px 0px 60px'>
-							<b>Tiempo:</b>
-							{{date}}
-							a las
-							{{hours}}
+						<div style='margin-top: 24px'>
+							<p style='text-align: center;'>
+								<b>Tiempo:</b>
+								{{date}}
+								a las
+								{{hours}}
+							</p>
 						</div>
 						<div style='width: 100%; margin-top: 24px; display: -webkit-flex; justify-content: center'>
 							<a
@@ -86,25 +94,27 @@
 								color: #fff;
 								background-color: #0b1d36;
 								text-decoration: none;
+								margin: auto;
 							'
 							>
-								<p style='margin-left: 15%; width: 100%; left: 50px'>
+								<p style='margin-left: 15%; width: 100%; left: 50px; margin-block-start: 1.1em'>
 									Haga click aquí para reestablecer su contraseña</p>
 							</a>
 						</div>
 						<p style='margin-top: 24px'>Si usted no solicitó esta operación ignore este comunicado.</p>
-						<p
+						<div
 							style='
 							font-size: 12px;
 							margin-top: 24px;
+							margin-bottom: 0;
 							border-left: 2px solid #0b1d36;
 							padding-left: 10px;
-							height: 30px;
-							display: flex;
-							align-items: center;
+							height: 19px;
 						'
-						>Atentamente: El Servicio Tecnico de BDT Group - Tech to simplify your business
-						</p>
+						>
+							<p style='margin-top: 10px;'>Atentamente: El Servicio Tecnico de BDT Group - Tech to
+								simplify your business</p>
+						</div>
 					</div>
 				</table>
 			</div>
