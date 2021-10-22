@@ -255,6 +255,98 @@ app.route('/Frontend_Comunicados_ET32/login').post(async function (req, res) {
 	}
 });
 
+//SP SECTION search_id_tiposComunicados
+app.route('/search_id_tiposComunicados').post(async function (req, res) {
+	const data = req.body;
+	let sql = `call search_id_tiposComunicados(${data.id});`;
+	try {
+		pool.getConnection(function (err, connection) {
+			if (err) throw err;
+			connection.query(sql, function (err, result) {
+				if (err) throw err;
+				console.log(result)
+			});
+			connection.release();
+		});
+	} catch (error) {
+		console.log(error);
+	}
+});
+
+//SP SECTION search_emisor_comunicados
+
+app.route('/search_emisor_comunicados').post(async function (req, res) {
+	const data = req.body;
+	let sql = `call search_emisor_comunicados(${data.emisor});`;
+	try {
+		pool.getConnection(function (err, connection) {
+			if (err) throw err;
+			connection.query(sql, function (err, result) {
+				if (err) throw err;
+				console.log(result)
+			});
+			connection.release();
+		});
+	} catch (error) {
+		console.log(error);
+	}
+});
+
+
+//SP SECTION search_fecha_comunicados
+app.route('/search_fecha_comunicados').post(async function (req, res) {
+	const data = req.body;
+	let sql = `call search_fecha_comunicados(${data.fecha});`;
+	try {
+		pool.getConnection(function (err, connection) {
+			if (err) throw err;
+			connection.query(sql, function (err, result) {
+				if (err) throw err;
+				console.log(result)
+			});
+			connection.release();
+		});
+	} catch (error) {
+		console.log(error);
+	}
+});
+
+//SP SECTION search_leido_comunicados
+app.route('/search_leido_comunicados').post(async function (req, res) {
+	const data = req.body;
+	let sql = `call search_leido_comunicados(${data.leido});`;
+	try {
+		pool.getConnection(function (err, connection) {
+			if (err) throw err;
+			connection.query(sql, function (err, result) {
+				if (err) throw err;
+				console.log(result)
+			});
+			connection.release();
+		});
+	} catch (error) {
+		console.log(error);
+	}
+});
+
+//SP SECTION search_titulo_comunicados
+app.route('/search_titulo_comunicados').post(async function (req, res) {
+	const data = req.body;
+	let sql = `call search_titulo_comunicados(${data.titulo});`;
+	try {
+		pool.getConnection(function (err, connection) {
+			if (err) throw err;
+			connection.query(sql, function (err, result) {
+				if (err) throw err;
+				console.log(result)
+			});
+			connection.release();
+		});
+	} catch (error) {
+		console.log(error);
+	}
+});
+
 app.listen(port, () => {
 	console.log(`Example app listening on port ${port}!`);
 });
