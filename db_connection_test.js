@@ -330,15 +330,16 @@ app.route('/search_leido_comunicados').post(async function (req, res) {
 });
 
 //SP SECTION search_titulo_comunicados
-app.route('/search_titulo_comunicados').post(async function (req, res) {
+app.route('/asd/search_titulo_comunicados').get(async function (req, res) {
 	const data = req.body;
-	let sql = `call search_titulo_comunicados(${data.titulo});`;
+	//let sql = `call search_titulo_comunicados(${data.titulo});`;
+	let sql = `call search_titulo_comunicados("");`;
 	try {
 		pool.getConnection(function (err, connection) {
 			if (err) throw err;
 			connection.query(sql, function (err, result) {
 				if (err) throw err;
-				console.log(result)
+				res.json(fixSearchResults(result[0]));
 			});
 			connection.release();
 		});
@@ -347,6 +348,294 @@ app.route('/search_titulo_comunicados').post(async function (req, res) {
 	}
 });
 
+app.route('/asd/insertComunicado').get(async function (req, res) {
+	const data = req.body;
+	// let sql = `SELECT bdt_cuaderno.insert_comunicado(${data.emisor}, "${data.titulo}", "${data.descripcion}", ${data.cursoReceptor});`;
+	let sql = `SELECT bdt_cuaderno.insert_comunicado(10000, "ttttti", "titttt", 2)`
+	try {
+		pool.getConnection(function (err, connection) {
+			if (err) throw err;
+			connection.query(sql, function (err, result) {
+				if (err) throw err;
+
+				let queryResult = Object.values(JSON.parse(JSON.stringify(result[0])));
+
+				//1: realizado, 2: emisor no existe, 3: título entre 5 y 50 caracteres, 4: descripcion de al menos 5, 5: curso no existe
+				let response = { status: parseInt(queryResult) }; 
+				res.json(response);
+			});
+			connection.release();
+		});
+	} catch (error) {
+		console.log(error);
+	}
+});
+
+app.route('/asd/deleteComunicado').get(async function (req, res) {
+	const data = req.body;
+	// let sql = `SELECT bdt_cuaderno.delete_comunicado(${data.idComunicado});`;
+	let sql = `SELECT bdt_cuaderno.delete_comunicado(18)`;
+	try {
+		pool.getConnection(function (err, connection) {
+			if (err) throw err;
+			connection.query(sql, function (err, result) {
+				if (err) throw err;
+
+				let queryResult = Object.values(JSON.parse(JSON.stringify(result[0])));
+
+				//1: realizado, 2: comunicado no existe
+				let response = { status: parseInt(queryResult) }; 
+				res.json(response);
+			});
+			connection.release();
+		});
+	} catch (error) {
+		console.log(error);
+	}
+});
+
+app.route('/asd/addCategoriaComunicado').get(async function (req, res) {
+	const data = req.body;
+	// let sql = `SELECT bdt_cuaderno.add_categoria_comunicado(${data.idComunicado}, ${data.idCategoria});`;
+	let sql = `SELECT bdt_cuaderno.add_categoria_comunicado(17, 5)`;
+	try {
+		pool.getConnection(function (err, connection) {
+			if (err) throw err;
+			connection.query(sql, function (err, result) {
+				if (err) throw err;
+
+				let queryResult = Object.values(JSON.parse(JSON.stringify(result[0])));
+
+				//1: realizado, 2: categoría no existe, 3: comunicado no existe
+				let response = { status: parseInt(queryResult) }; 
+				res.json(response);
+			});
+			connection.release();
+		});
+	} catch (error) {
+		console.log(error);
+	}
+});
+
+app.route('/asd/deleteCategoriaComunicado').get(async function (req, res) {
+	const data = req.body;
+	// let sql = `SELECT bdt_cuaderno.delete_categoria_comunicado(${data.idComunicado}, ${data.idCategoria});`;
+	let sql = `SELECT bdt_cuaderno.delete_categoria_comunicado(1, 333)`;
+	try {
+		pool.getConnection(function (err, connection) {
+			if (err) throw err;
+			connection.query(sql, function (err, result) {
+				if (err) throw err;
+
+				let queryResult = Object.values(JSON.parse(JSON.stringify(result[0])));
+
+				//1: realizado, 2: categoría no existe, 3: comunicado no existe
+				let response = { status: parseInt(queryResult) }; 
+				res.json(response);
+			});
+			connection.release();
+		});
+	} catch (error) {
+		console.log(error);
+	}
+});
+
+// Group objects by attribute fecha and return an array of objects with the same fecha
+const fixSearchResults = (resultArray) =>{
+		let groupBy = (array, key) => {
+		return array.reduce(function (rv, x) {
+			(rv[x[key]] = rv[x[key]] || []).push(x);
+			return rv;
+		}, {});
+	};
+
+	let grouped = groupBy(resultArray, "fecha");
+
+	let finalResult = [];
+
+	for (let key in grouped) {
+		let obj = {};
+		obj.fecha = key;
+		obj.comunicados = grouped[key];
+		finalResult.push(obj);
+	}
+
+	return finalResult;
+};
+
+
+	/*
+	let newResults = [];
+	let counterFechas = 0;
+	let counterComunicados = 0;
+	resultArray.forEach(result => {
+		if(newResults.length == 0){
+			newResults[counterFechas] = {};
+			newResults[counterFechas].fecha = result.fecha;
+
+			newResults[counterFechas].comunicados = [];
+			delete result.fecha;
+			newResults[counterFechas].comunicados[0] = result;
+			counterComunicados = 1;
+		}else{
+			let mustInsert;
+			let curLength = newResults.length
+			for (let i = 0; i < curLength; i++){
+			//newResults.forEach(newResult => {
+				console.log(Object.values(newResults)[i].fecha.toDateString());
+				if(Object.values(newResults)[i].fecha.toDateString() != result.fecha.toDateString()){
+					counterFechas++; 
+					newResults[counterFechas] = {};
+					newResults[counterFechas].fecha = result.fecha;
+					newResults[counterFechas].comunicados = [];
+					delete result.fecha;
+					newResults[counterFechas].comunicados[0] = result;
+					counterComunicados = 1;
+					curLength = newResults.length;
+					mustInsert = false;
+				}else{
+					mustInsert = true;
+					break;
+				}
+			};
+			if(mustInsert){
+				delete result.fecha;
+				newResults[counterFechas].comunicados[counterComunicados] = result;
+				counterComunicados++;
+			}
+		}
+
+	});
+	console.log(newResults);
+	return newResults;
+	*/
+
 app.listen(port, () => {
 	console.log(`Example app listening on port ${port}!`);
 });
+
+const hi = [
+	{
+	  "fecha": "Thu Sep 09 2021 00:00:00 GMT-0300 (Argentina Standard Time)",
+	  "comunicados": [
+		{
+		  "fecha": "2021-09-09T03:00:00.000Z",
+		  "titulo": "Hola",
+		  "emisor": "Juan Pablo Aubone",
+		  "descripcion": "Holaaa",
+		  "leido": 1,
+		  "Etiqueta": "General",
+		  "receptor": 1
+		},
+		{
+		  "fecha": "2021-09-09T03:00:00.000Z",
+		  "titulo": "Hola",
+		  "emisor": "Juan Pablo Aubone",
+		  "descripcion": "Holaaa",
+		  "leido": 1,
+		  "Etiqueta": "General",
+		  "receptor": 3
+		}
+	  ]
+	},
+	{
+	  "fecha": "Thu Oct 21 2021 00:00:00 GMT-0300 (Argentina Standard Time)",
+	  "comunicados": [
+		{
+		  "fecha": "2021-10-21T03:00:00.000Z",
+		  "titulo": "Titulo de prueba",
+		  "emisor": "Ke Ke",
+		  "descripcion": "Desc de prueba",
+		  "leido": 0,
+		  "Etiqueta": null,
+		  "receptor": 1
+		},
+		{
+		  "fecha": "2021-10-21T03:00:00.000Z",
+		  "titulo": "Titulo de prueba",
+		  "emisor": "Ke Ke",
+		  "descripcion": "Desc de prueba",
+		  "leido": 0,
+		  "Etiqueta": null,
+		  "receptor": 1
+		},
+		{
+		  "fecha": "2021-10-21T03:00:00.000Z",
+		  "titulo": "Titulo de PRUEBA ",
+		  "emisor": "Ke Ke",
+		  "descripcion": "Desc de prue+ba",
+		  "leido": 0,
+		  "Etiqueta": null,
+		  "receptor": 1
+		},
+		{
+		  "fecha": "2021-10-21T03:00:00.000Z",
+		  "titulo": "Titulo de PRUEBA ",
+		  "emisor": "Ke Ke",
+		  "descripcion": "Desc de prue+ba",
+		  "leido": 0,
+		  "Etiqueta": null,
+		  "receptor": 2
+		},
+		{
+		  "fecha": "2021-10-21T03:00:00.000Z",
+		  "titulo": "Titulo de PRUEBA ",
+		  "emisor": "Ke Ke",
+		  "descripcion": "Desc de prue+ba",
+		  "leido": 0,
+		  "Etiqueta": null,
+		  "receptor": 3
+		},
+		{
+		  "fecha": "2021-10-21T03:00:00.000Z",
+		  "titulo": "Titulo de PRUEBA ",
+		  "emisor": "Ke Ke",
+		  "descripcion": "Desc de prue+ba",
+		  "leido": 0,
+		  "Etiqueta": null,
+		  "receptor": 4
+		}
+	  ]
+	},
+	{
+	  "fecha": "Fri Oct 22 2021 00:00:00 GMT-0300 (Argentina Standard Time)",
+	  "comunicados": [
+		{
+		  "fecha": "2021-10-22T03:00:00.000Z",
+		  "titulo": "22 10 2021",
+		  "emisor": "Carlos Menem",
+		  "descripcion": "Hoy es 22 10 2021",
+		  "leido": 0,
+		  "Etiqueta": null,
+		  "receptor": 1
+		},
+		{
+		  "fecha": "2021-10-22T03:00:00.000Z",
+		  "titulo": "22 10 2021",
+		  "emisor": "Carlos Menem",
+		  "descripcion": "Hoy es 22 10 2021",
+		  "leido": 0,
+		  "Etiqueta": null,
+		  "receptor": 2
+		},
+		{
+		  "fecha": "2021-10-22T03:00:00.000Z",
+		  "titulo": "22 10 2021",
+		  "emisor": "Carlos Menem",
+		  "descripcion": "Hoy es 22 10 2021",
+		  "leido": 0,
+		  "Etiqueta": null,
+		  "receptor": 3
+		},
+		{
+		  "fecha": "2021-10-22T03:00:00.000Z",
+		  "titulo": "22 10 2021",
+		  "emisor": "Carlos Menem",
+		  "descripcion": "Hoy es 22 10 2021",
+		  "leido": 0,
+		  "Etiqueta": null,
+		  "receptor": 4
+		}
+	  ]
+	}
+  ]
