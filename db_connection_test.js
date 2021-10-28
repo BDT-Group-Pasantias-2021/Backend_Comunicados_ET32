@@ -339,7 +339,15 @@ app.route('/asd/search_titulo_comunicados').get(async function (req, res) {
 			if (err) throw err;
 			connection.query(sql, function (err, result) {
 				if (err) throw err;
-				res.json(fixSearchResults(result[0]));
+				let miArray = fixSearchResults(result[0]);
+				miArray.forEach(element => {
+					console.log("---------");
+					element.comunicados = groupEtiquetas(element.comunicados);
+					console.log(element.comunicados);
+					
+				});	
+				res.json(miArray);
+				
 			});
 			connection.release();
 		});
@@ -351,7 +359,7 @@ app.route('/asd/search_titulo_comunicados').get(async function (req, res) {
 app.route('/asd/insertComunicado').get(async function (req, res) {
 	const data = req.body;
 	// let sql = `SELECT bdt_cuaderno.insert_comunicado(${data.emisor}, "${data.titulo}", "${data.descripcion}", ${data.cursoReceptor});`;
-	let sql = `SELECT bdt_cuaderno.insert_comunicado(10000, "ttttti", "titttt", 2)`
+	let sql = `SELECT bdt_cuaderno.insert_comunicado(10000, "ttttti", "titttt", 2)`;
 	try {
 		pool.getConnection(function (err, connection) {
 			if (err) throw err;
@@ -440,28 +448,52 @@ app.route('/asd/deleteCategoriaComunicado').get(async function (req, res) {
 	}
 });
 
+// Agrupar objetos con el mismo id y juntar sus etiquetas
+const groupEtiquetas = (finalArray) =>{
+	let groupedArray = [];
+	finalArray.forEach(element => {
+		let index = groupedArray.findIndex(x => x.id === element.id);	
+		let tempEtiqueta = {id_etiqueta: element.id_categoria, receptor: element.receptor, etiqueta: element.etiqueta};
+
+		if (element.id_categoria == null || element.id_categoria == undefined) {
+			groupedArray.push({id: element.id, fecha : element.fecha, titulo: element.titulo, 
+				emisor: element.emisor,descripcion:element.descripcion, leido:element.leido, 
+				receptor:element.receptor} );
+		}
+		else if (index === -1) {
+			groupedArray.push({id: element.id, fecha : element.fecha, titulo: element.titulo, 
+				emisor: element.emisor,descripcion:element.descripcion, leido:element.leido, 
+				receptor:element.receptor, etiquetas: [tempEtiqueta]});
+		} else {
+			groupedArray[index].etiquetas.push(tempEtiqueta);
+		}
+	});
+	return groupedArray;
+
+}
 // Group objects by attribute fecha and return an array of objects with the same fecha
 const fixSearchResults = (resultArray) =>{
-		let groupBy = (array, key) => {
-		return array.reduce(function (rv, x) {
-			(rv[x[key]] = rv[x[key]] || []).push(x);
-			return rv;
-		}, {});
-	};
-
-	let grouped = groupBy(resultArray, "fecha");
-
-	let finalResult = [];
-
-	for (let key in grouped) {
-		let obj = {};
-		obj.fecha = key;
-		obj.comunicados = grouped[key];
-		finalResult.push(obj);
-	}
-
-	return finalResult;
+	let groupBy = (array, key) => {
+	return array.reduce(function (rv, x) {
+		(rv[x[key]] = rv[x[key]] || []).push(x);
+		return rv;
+	}, {});
 };
+
+let grouped = groupBy(resultArray, "fecha");
+
+let finalResult = [];
+
+for (let key in grouped) {
+	let obj = {};
+	obj.fecha = key;
+	obj.comunicados = grouped[key];
+	finalResult.push(obj);
+}
+
+return finalResult;
+};
+
 
 
 	/*
@@ -524,7 +556,12 @@ const hi = [
 		  "emisor": "Juan Pablo Aubone",
 		  "descripcion": "Holaaa",
 		  "leido": 1,
-		  "Etiqueta": "General",
+		  "Etiqueta": [
+			{
+				"id_categoria": 1,
+				"nombre": 'General',
+				"color": '#121212',
+			}],
 		  "receptor": 1
 		},
 		{

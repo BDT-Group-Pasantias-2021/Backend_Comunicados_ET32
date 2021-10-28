@@ -9,15 +9,15 @@ const sendEmail = async (payload, template, targetEmail) => {
 		service: 'gmail',
 		auth: {
 			user: 'teamrasn@gmail.com',
-			pass: 'P1t0d3c4br4',
+			pass: 'p1t0d3c4br4',
 		},
 	});
 	const source = fs.readFileSync(path.join(__dirname, template), 'utf8');
 	const compiledTemplate = handlebars.compile(source);
 	let mailOptions = {
-		from: 'bdtgroup@killout.com',
+		from: 'teamrasn@practicas.com',
 		to: targetEmail,
-		subject: 'Cuaderno de comunicados - Cambio de contraseña',
+		subject: 'Team Rasn - Practicas profesionalizantes',
 		text: 'That was easy!',
 		html: compiledTemplate(payload),
 	};
