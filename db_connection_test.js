@@ -14,9 +14,16 @@ const port = 3001;
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use(cors());
 app.use(
-	session({ name: 'SessionCookie', secret: 'test', cookie: { maxAge: 600000 }, store: sessionStore, resave: true })
+	cors(),
+	session({
+		name: 'SessionCookie',
+		secret: 'test',
+		cookie: { maxAge: 600000 },
+		store: sessionStore,
+		resave: true,
+		saveUninitialized: true,
+	})
 );
 
 app.route('/Frontend_Comunicados_ET32/register').post(function (req, res) {
@@ -264,7 +271,7 @@ app.route('/search_id_tiposComunicados').post(async function (req, res) {
 			if (err) throw err;
 			connection.query(sql, function (err, result) {
 				if (err) throw err;
-				console.log(result)
+				console.log(result);
 			});
 			connection.release();
 		});
@@ -283,7 +290,7 @@ app.route('/search_emisor_comunicados').post(async function (req, res) {
 			if (err) throw err;
 			connection.query(sql, function (err, result) {
 				if (err) throw err;
-				console.log(result)
+				console.log(result);
 			});
 			connection.release();
 		});
@@ -291,7 +298,6 @@ app.route('/search_emisor_comunicados').post(async function (req, res) {
 		console.log(error);
 	}
 });
-
 
 //SP SECTION search_fecha_comunicados
 app.route('/search_fecha_comunicados').post(async function (req, res) {
@@ -302,7 +308,7 @@ app.route('/search_fecha_comunicados').post(async function (req, res) {
 			if (err) throw err;
 			connection.query(sql, function (err, result) {
 				if (err) throw err;
-				console.log(result)
+				console.log(result);
 			});
 			connection.release();
 		});
@@ -320,7 +326,7 @@ app.route('/search_leido_comunicados').post(async function (req, res) {
 			if (err) throw err;
 			connection.query(sql, function (err, result) {
 				if (err) throw err;
-				console.log(result)
+				console.log(result);
 			});
 			connection.release();
 		});
@@ -330,24 +336,22 @@ app.route('/search_leido_comunicados').post(async function (req, res) {
 });
 
 //SP SECTION search_titulo_comunicados
-app.route('/asd/search_titulo_comunicados').get(async function (req, res) {
+app.route('/asd/search_titulo_comunicados').post(async function (req, res) {
 	const data = req.body;
-	//let sql = `call search_titulo_comunicados(${data.titulo});`;
-	let sql = `call search_titulo_comunicados("");`;
+	let sql = `call search_titulo_comunicados('${data.titulo}');`;
+	/* let sql = `call search_titulo_comunicados("");`; */
 	try {
 		pool.getConnection(function (err, connection) {
 			if (err) throw err;
 			connection.query(sql, function (err, result) {
 				if (err) throw err;
 				let miArray = fixSearchResults(result[0]);
-				miArray.forEach(element => {
-					console.log("---------");
+				miArray.forEach((element) => {
+					console.log('---------');
 					element.comunicados = groupEtiquetas(element.comunicados);
 					console.log(element.comunicados);
-					
-				});	
+				});
 				res.json(miArray);
-				
 			});
 			connection.release();
 		});
@@ -369,7 +373,7 @@ app.route('/asd/insertComunicado').get(async function (req, res) {
 				let queryResult = Object.values(JSON.parse(JSON.stringify(result[0])));
 
 				//1: realizado, 2: emisor no existe, 3: título entre 5 y 50 caracteres, 4: descripcion de al menos 5, 5: curso no existe
-				let response = { status: parseInt(queryResult) }; 
+				let response = { status: parseInt(queryResult) };
 				res.json(response);
 			});
 			connection.release();
@@ -392,7 +396,7 @@ app.route('/asd/deleteComunicado').get(async function (req, res) {
 				let queryResult = Object.values(JSON.parse(JSON.stringify(result[0])));
 
 				//1: realizado, 2: comunicado no existe
-				let response = { status: parseInt(queryResult) }; 
+				let response = { status: parseInt(queryResult) };
 				res.json(response);
 			});
 			connection.release();
@@ -415,7 +419,7 @@ app.route('/asd/addCategoriaComunicado').get(async function (req, res) {
 				let queryResult = Object.values(JSON.parse(JSON.stringify(result[0])));
 
 				//1: realizado, 2: categoría no existe, 3: comunicado no existe
-				let response = { status: parseInt(queryResult) }; 
+				let response = { status: parseInt(queryResult) };
 				res.json(response);
 			});
 			connection.release();
@@ -438,7 +442,7 @@ app.route('/asd/deleteCategoriaComunicado').get(async function (req, res) {
 				let queryResult = Object.values(JSON.parse(JSON.stringify(result[0])));
 
 				//1: realizado, 2: categoría no existe, 3: comunicado no existe
-				let response = { status: parseInt(queryResult) }; 
+				let response = { status: parseInt(queryResult) };
 				res.json(response);
 			});
 			connection.release();
@@ -449,54 +453,67 @@ app.route('/asd/deleteCategoriaComunicado').get(async function (req, res) {
 });
 
 // Agrupar objetos con el mismo id y juntar sus etiquetas
-const groupEtiquetas = (finalArray) =>{
+const groupEtiquetas = (finalArray) => {
 	let groupedArray = [];
-	finalArray.forEach(element => {
-		let index = groupedArray.findIndex(x => x.id === element.id);	
-		let tempEtiqueta = {id_etiqueta: element.id_categoria, receptor: element.receptor, etiqueta: element.etiqueta};
+	finalArray.forEach((element) => {
+		let index = groupedArray.findIndex((x) => x.id === element.id);
+		let tempEtiqueta = {
+			id_etiqueta: element.id_categoria,
+			receptor: element.receptor,
+			etiqueta: element.etiqueta,
+		};
 
 		if (element.id_categoria == null || element.id_categoria == undefined) {
-			groupedArray.push({id: element.id, fecha : element.fecha, titulo: element.titulo, 
-				emisor: element.emisor,descripcion:element.descripcion, leido:element.leido, 
-				receptor:element.receptor} );
-		}
-		else if (index === -1) {
-			groupedArray.push({id: element.id, fecha : element.fecha, titulo: element.titulo, 
-				emisor: element.emisor,descripcion:element.descripcion, leido:element.leido, 
-				receptor:element.receptor, etiquetas: [tempEtiqueta]});
+			groupedArray.push({
+				id: element.id,
+				fecha: element.fecha,
+				titulo: element.titulo,
+				emisor: element.emisor,
+				descripcion: element.descripcion,
+				leido: element.leido,
+				receptor: element.receptor,
+			});
+		} else if (index === -1) {
+			groupedArray.push({
+				id: element.id,
+				fecha: element.fecha,
+				titulo: element.titulo,
+				emisor: element.emisor,
+				descripcion: element.descripcion,
+				leido: element.leido,
+				receptor: element.receptor,
+				etiquetas: [tempEtiqueta],
+			});
 		} else {
 			groupedArray[index].etiquetas.push(tempEtiqueta);
 		}
 	});
 	return groupedArray;
-
-}
+};
 // Group objects by attribute fecha and return an array of objects with the same fecha
-const fixSearchResults = (resultArray) =>{
+const fixSearchResults = (resultArray) => {
 	let groupBy = (array, key) => {
-	return array.reduce(function (rv, x) {
-		(rv[x[key]] = rv[x[key]] || []).push(x);
-		return rv;
-	}, {});
+		return array.reduce(function (rv, x) {
+			(rv[x[key]] = rv[x[key]] || []).push(x);
+			return rv;
+		}, {});
+	};
+
+	let grouped = groupBy(resultArray, 'fecha');
+
+	let finalResult = [];
+
+	for (let key in grouped) {
+		let obj = {};
+		obj.fecha = key;
+		obj.comunicados = grouped[key];
+		finalResult.push(obj);
+	}
+
+	return finalResult;
 };
 
-let grouped = groupBy(resultArray, "fecha");
-
-let finalResult = [];
-
-for (let key in grouped) {
-	let obj = {};
-	obj.fecha = key;
-	obj.comunicados = grouped[key];
-	finalResult.push(obj);
-}
-
-return finalResult;
-};
-
-
-
-	/*
+/*
 	let newResults = [];
 	let counterFechas = 0;
 	let counterComunicados = 0;
@@ -548,131 +565,132 @@ app.listen(port, () => {
 
 const hi = [
 	{
-	  "fecha": "Thu Sep 09 2021 00:00:00 GMT-0300 (Argentina Standard Time)",
-	  "comunicados": [
-		{
-		  "fecha": "2021-09-09T03:00:00.000Z",
-		  "titulo": "Hola",
-		  "emisor": "Juan Pablo Aubone",
-		  "descripcion": "Holaaa",
-		  "leido": 1,
-		  "Etiqueta": [
+		fecha: 'Thu Sep 09 2021 00:00:00 GMT-0300 (Argentina Standard Time)',
+		comunicados: [
 			{
-				"id_categoria": 1,
-				"nombre": 'General',
-				"color": '#121212',
-			}],
-		  "receptor": 1
-		},
-		{
-		  "fecha": "2021-09-09T03:00:00.000Z",
-		  "titulo": "Hola",
-		  "emisor": "Juan Pablo Aubone",
-		  "descripcion": "Holaaa",
-		  "leido": 1,
-		  "Etiqueta": "General",
-		  "receptor": 3
-		}
-	  ]
+				fecha: '2021-09-09T03:00:00.000Z',
+				titulo: 'Hola',
+				emisor: 'Juan Pablo Aubone',
+				descripcion: 'Holaaa',
+				leido: 1,
+				Etiqueta: [
+					{
+						id_categoria: 1,
+						nombre: 'General',
+						color: '#121212',
+					},
+				],
+				receptor: 1,
+			},
+			{
+				fecha: '2021-09-09T03:00:00.000Z',
+				titulo: 'Hola',
+				emisor: 'Juan Pablo Aubone',
+				descripcion: 'Holaaa',
+				leido: 1,
+				Etiqueta: 'General',
+				receptor: 3,
+			},
+		],
 	},
 	{
-	  "fecha": "Thu Oct 21 2021 00:00:00 GMT-0300 (Argentina Standard Time)",
-	  "comunicados": [
-		{
-		  "fecha": "2021-10-21T03:00:00.000Z",
-		  "titulo": "Titulo de prueba",
-		  "emisor": "Ke Ke",
-		  "descripcion": "Desc de prueba",
-		  "leido": 0,
-		  "Etiqueta": null,
-		  "receptor": 1
-		},
-		{
-		  "fecha": "2021-10-21T03:00:00.000Z",
-		  "titulo": "Titulo de prueba",
-		  "emisor": "Ke Ke",
-		  "descripcion": "Desc de prueba",
-		  "leido": 0,
-		  "Etiqueta": null,
-		  "receptor": 1
-		},
-		{
-		  "fecha": "2021-10-21T03:00:00.000Z",
-		  "titulo": "Titulo de PRUEBA ",
-		  "emisor": "Ke Ke",
-		  "descripcion": "Desc de prue+ba",
-		  "leido": 0,
-		  "Etiqueta": null,
-		  "receptor": 1
-		},
-		{
-		  "fecha": "2021-10-21T03:00:00.000Z",
-		  "titulo": "Titulo de PRUEBA ",
-		  "emisor": "Ke Ke",
-		  "descripcion": "Desc de prue+ba",
-		  "leido": 0,
-		  "Etiqueta": null,
-		  "receptor": 2
-		},
-		{
-		  "fecha": "2021-10-21T03:00:00.000Z",
-		  "titulo": "Titulo de PRUEBA ",
-		  "emisor": "Ke Ke",
-		  "descripcion": "Desc de prue+ba",
-		  "leido": 0,
-		  "Etiqueta": null,
-		  "receptor": 3
-		},
-		{
-		  "fecha": "2021-10-21T03:00:00.000Z",
-		  "titulo": "Titulo de PRUEBA ",
-		  "emisor": "Ke Ke",
-		  "descripcion": "Desc de prue+ba",
-		  "leido": 0,
-		  "Etiqueta": null,
-		  "receptor": 4
-		}
-	  ]
+		fecha: 'Thu Oct 21 2021 00:00:00 GMT-0300 (Argentina Standard Time)',
+		comunicados: [
+			{
+				fecha: '2021-10-21T03:00:00.000Z',
+				titulo: 'Titulo de prueba',
+				emisor: 'Ke Ke',
+				descripcion: 'Desc de prueba',
+				leido: 0,
+				Etiqueta: null,
+				receptor: 1,
+			},
+			{
+				fecha: '2021-10-21T03:00:00.000Z',
+				titulo: 'Titulo de prueba',
+				emisor: 'Ke Ke',
+				descripcion: 'Desc de prueba',
+				leido: 0,
+				Etiqueta: null,
+				receptor: 1,
+			},
+			{
+				fecha: '2021-10-21T03:00:00.000Z',
+				titulo: 'Titulo de PRUEBA ',
+				emisor: 'Ke Ke',
+				descripcion: 'Desc de prue+ba',
+				leido: 0,
+				Etiqueta: null,
+				receptor: 1,
+			},
+			{
+				fecha: '2021-10-21T03:00:00.000Z',
+				titulo: 'Titulo de PRUEBA ',
+				emisor: 'Ke Ke',
+				descripcion: 'Desc de prue+ba',
+				leido: 0,
+				Etiqueta: null,
+				receptor: 2,
+			},
+			{
+				fecha: '2021-10-21T03:00:00.000Z',
+				titulo: 'Titulo de PRUEBA ',
+				emisor: 'Ke Ke',
+				descripcion: 'Desc de prue+ba',
+				leido: 0,
+				Etiqueta: null,
+				receptor: 3,
+			},
+			{
+				fecha: '2021-10-21T03:00:00.000Z',
+				titulo: 'Titulo de PRUEBA ',
+				emisor: 'Ke Ke',
+				descripcion: 'Desc de prue+ba',
+				leido: 0,
+				Etiqueta: null,
+				receptor: 4,
+			},
+		],
 	},
 	{
-	  "fecha": "Fri Oct 22 2021 00:00:00 GMT-0300 (Argentina Standard Time)",
-	  "comunicados": [
-		{
-		  "fecha": "2021-10-22T03:00:00.000Z",
-		  "titulo": "22 10 2021",
-		  "emisor": "Carlos Menem",
-		  "descripcion": "Hoy es 22 10 2021",
-		  "leido": 0,
-		  "Etiqueta": null,
-		  "receptor": 1
-		},
-		{
-		  "fecha": "2021-10-22T03:00:00.000Z",
-		  "titulo": "22 10 2021",
-		  "emisor": "Carlos Menem",
-		  "descripcion": "Hoy es 22 10 2021",
-		  "leido": 0,
-		  "Etiqueta": null,
-		  "receptor": 2
-		},
-		{
-		  "fecha": "2021-10-22T03:00:00.000Z",
-		  "titulo": "22 10 2021",
-		  "emisor": "Carlos Menem",
-		  "descripcion": "Hoy es 22 10 2021",
-		  "leido": 0,
-		  "Etiqueta": null,
-		  "receptor": 3
-		},
-		{
-		  "fecha": "2021-10-22T03:00:00.000Z",
-		  "titulo": "22 10 2021",
-		  "emisor": "Carlos Menem",
-		  "descripcion": "Hoy es 22 10 2021",
-		  "leido": 0,
-		  "Etiqueta": null,
-		  "receptor": 4
-		}
-	  ]
-	}
-  ]
+		fecha: 'Fri Oct 22 2021 00:00:00 GMT-0300 (Argentina Standard Time)',
+		comunicados: [
+			{
+				fecha: '2021-10-22T03:00:00.000Z',
+				titulo: '22 10 2021',
+				emisor: 'Carlos Menem',
+				descripcion: 'Hoy es 22 10 2021',
+				leido: 0,
+				Etiqueta: null,
+				receptor: 1,
+			},
+			{
+				fecha: '2021-10-22T03:00:00.000Z',
+				titulo: '22 10 2021',
+				emisor: 'Carlos Menem',
+				descripcion: 'Hoy es 22 10 2021',
+				leido: 0,
+				Etiqueta: null,
+				receptor: 2,
+			},
+			{
+				fecha: '2021-10-22T03:00:00.000Z',
+				titulo: '22 10 2021',
+				emisor: 'Carlos Menem',
+				descripcion: 'Hoy es 22 10 2021',
+				leido: 0,
+				Etiqueta: null,
+				receptor: 3,
+			},
+			{
+				fecha: '2021-10-22T03:00:00.000Z',
+				titulo: '22 10 2021',
+				emisor: 'Carlos Menem',
+				descripcion: 'Hoy es 22 10 2021',
+				leido: 0,
+				Etiqueta: null,
+				receptor: 4,
+			},
+		],
+	},
+];
