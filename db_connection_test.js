@@ -482,7 +482,7 @@ const groupEtiquetas = (finalArray) =>{
 	let groupedArray = [];
 	finalArray.forEach(element => {
 		let index = groupedArray.findIndex(x => x.id === element.id);	
-		let tempEtiqueta = {id_etiqueta: element.id_categoria, receptor: element.receptor, etiqueta: element.etiqueta};
+		let tempEtiqueta = {id_etiqueta: element.id_categoria, receptor: element.receptor, etiqueta: element.etiqueta, color : element.color};
 
 		if (element.id_categoria == null || element.id_categoria == undefined) {
 			groupedArray.push({id: element.id, fecha : element.fecha, titulo: element.titulo, 
