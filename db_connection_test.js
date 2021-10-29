@@ -256,7 +256,7 @@ app.route('/Frontend_Comunicados_ET32/login').post(async function (req, res) {
 });
 
 //SP SECTION search_id_tiposComunicados
-app.route('/search_id_tiposComunicados').post(async function (req, res) {
+app.route('Frontend_Comunicados_ET32/search_id_tiposComunicados').post(async function (req, res) {
 	const data = req.body;
 	let sql = `call search_id_tiposComunicados(${data.id});`;
 	try {
@@ -264,7 +264,14 @@ app.route('/search_id_tiposComunicados').post(async function (req, res) {
 			if (err) throw err;
 			connection.query(sql, function (err, result) {
 				if (err) throw err;
-				console.log(result)
+				let miArray = fixSearchResults(result[0]);
+				miArray.forEach(element => {
+					console.log("---------");
+					element.comunicados = groupEtiquetas(element.comunicados);
+					console.log(element.comunicados);
+				});	
+				res.json(miArray);
+				
 			});
 			connection.release();
 		});
@@ -275,7 +282,7 @@ app.route('/search_id_tiposComunicados').post(async function (req, res) {
 
 //SP SECTION search_emisor_comunicados
 
-app.route('/search_emisor_comunicados').post(async function (req, res) {
+app.route('Frontend_Comunicados_ET32/search_emisor_comunicados').post(async function (req, res) {
 	const data = req.body;
 	let sql = `call search_emisor_comunicados(${data.emisor});`;
 	try {
@@ -283,7 +290,15 @@ app.route('/search_emisor_comunicados').post(async function (req, res) {
 			if (err) throw err;
 			connection.query(sql, function (err, result) {
 				if (err) throw err;
-				console.log(result)
+				let miArray = fixSearchResults(result[0]);
+				miArray.forEach(element => {
+					console.log("---------");
+					element.comunicados = groupEtiquetas(element.comunicados);
+					console.log(element.comunicados);
+					
+				});	
+				res.json(miArray);
+				
 			});
 			connection.release();
 		});
@@ -294,7 +309,7 @@ app.route('/search_emisor_comunicados').post(async function (req, res) {
 
 
 //SP SECTION search_fecha_comunicados
-app.route('/search_fecha_comunicados').post(async function (req, res) {
+app.route('Frontend_Comunicados_ET32/search_fecha_comunicados').post(async function (req, res) {
 	const data = req.body;
 	let sql = `call search_fecha_comunicados(${data.fecha});`;
 	try {
@@ -302,7 +317,14 @@ app.route('/search_fecha_comunicados').post(async function (req, res) {
 			if (err) throw err;
 			connection.query(sql, function (err, result) {
 				if (err) throw err;
-				console.log(result)
+				let miArray = fixSearchResults(result[0]);
+				miArray.forEach(element => {
+					console.log("---------");
+					element.comunicados = groupEtiquetas(element.comunicados);
+					console.log(element.comunicados);	
+				});	
+				res.json(miArray);
+				
 			});
 			connection.release();
 		});
@@ -312,7 +334,7 @@ app.route('/search_fecha_comunicados').post(async function (req, res) {
 });
 
 //SP SECTION search_leido_comunicados
-app.route('/search_leido_comunicados').post(async function (req, res) {
+app.route('Frontend_Comunicados_ET32/search_leido_comunicados').post(async function (req, res) {
 	const data = req.body;
 	let sql = `call search_leido_comunicados(${data.leido});`;
 	try {
@@ -320,7 +342,14 @@ app.route('/search_leido_comunicados').post(async function (req, res) {
 			if (err) throw err;
 			connection.query(sql, function (err, result) {
 				if (err) throw err;
-				console.log(result)
+				let miArray = fixSearchResults(result[0]);
+				miArray.forEach(element => {
+					console.log("---------");
+					element.comunicados = groupEtiquetas(element.comunicados);
+					console.log(element.comunicados);
+				});	
+				res.json(miArray);
+				
 			});
 			connection.release();
 		});
@@ -330,7 +359,7 @@ app.route('/search_leido_comunicados').post(async function (req, res) {
 });
 
 //SP SECTION search_titulo_comunicados
-app.route('/asd/search_titulo_comunicados').get(async function (req, res) {
+app.route('Frontend_Comunicados_ET32/search_titulo_comunicados').post(async function (req, res) {
 	const data = req.body;
 	//let sql = `call search_titulo_comunicados(${data.titulo});`;
 	let sql = `call search_titulo_comunicados("");`;
@@ -356,7 +385,7 @@ app.route('/asd/search_titulo_comunicados').get(async function (req, res) {
 	}
 });
 
-app.route('/asd/insertComunicado').get(async function (req, res) {
+app.route('Frontend_Comunicados_ET32/insertComunicado').post(async function (req, res) {
 	const data = req.body;
 	// let sql = `SELECT bdt_cuaderno.insert_comunicado(${data.emisor}, "${data.titulo}", "${data.descripcion}", ${data.cursoReceptor});`;
 	let sql = `SELECT bdt_cuaderno.insert_comunicado(10000, "ttttti", "titttt", 2)`;
@@ -379,7 +408,7 @@ app.route('/asd/insertComunicado').get(async function (req, res) {
 	}
 });
 
-app.route('/asd/deleteComunicado').get(async function (req, res) {
+app.route('Frontend_Comunicados_ET32/deleteComunicado').post(async function (req, res) {
 	const data = req.body;
 	// let sql = `SELECT bdt_cuaderno.delete_comunicado(${data.idComunicado});`;
 	let sql = `SELECT bdt_cuaderno.delete_comunicado(18)`;
@@ -402,7 +431,7 @@ app.route('/asd/deleteComunicado').get(async function (req, res) {
 	}
 });
 
-app.route('/asd/addCategoriaComunicado').get(async function (req, res) {
+app.route('Frontend_Comunicados_ET32/addCategoriaComunicado').post(async function (req, res) {
 	const data = req.body;
 	// let sql = `SELECT bdt_cuaderno.add_categoria_comunicado(${data.idComunicado}, ${data.idCategoria});`;
 	let sql = `SELECT bdt_cuaderno.add_categoria_comunicado(17, 5)`;
@@ -425,7 +454,7 @@ app.route('/asd/addCategoriaComunicado').get(async function (req, res) {
 	}
 });
 
-app.route('/asd/deleteCategoriaComunicado').get(async function (req, res) {
+app.route('Frontend_Comunicados_ET32/deleteCategoriaComunicado').post(async function (req, res) {
 	const data = req.body;
 	// let sql = `SELECT bdt_cuaderno.delete_categoria_comunicado(${data.idComunicado}, ${data.idCategoria});`;
 	let sql = `SELECT bdt_cuaderno.delete_categoria_comunicado(1, 333)`;
