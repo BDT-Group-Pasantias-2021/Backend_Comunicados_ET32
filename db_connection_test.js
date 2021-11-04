@@ -263,7 +263,7 @@ app.route('/Frontend_Comunicados_ET32/login').post(async function (req, res) {
 });
 
 //SP SECTION search_id_tiposComunicados
-app.route('/search_id_tiposComunicados').post(async function (req, res) {
+app.route('/Frontend_Comunicados_ET32/search_id_tiposComunicados').post(async function (req, res) {
 	const data = req.body;
 	let sql = `call search_id_tiposComunicados(${data.id});`;
 	try {
@@ -271,7 +271,13 @@ app.route('/search_id_tiposComunicados').post(async function (req, res) {
 			if (err) throw err;
 			connection.query(sql, function (err, result) {
 				if (err) throw err;
-				console.log(result);
+				let miArray = fixSearchResults(result[0]);
+				miArray.forEach((element) => {
+					console.log('---------');
+					element.comunicados = groupEtiquetas(element.comunicados);
+					console.log(element.comunicados);
+				});
+				res.json(miArray);
 			});
 			connection.release();
 		});
@@ -282,7 +288,7 @@ app.route('/search_id_tiposComunicados').post(async function (req, res) {
 
 //SP SECTION search_emisor_comunicados
 
-app.route('/search_emisor_comunicados').post(async function (req, res) {
+app.route('/Frontend_Comunicados_ET32/search_emisor_comunicados').post(async function (req, res) {
 	const data = req.body;
 	let sql = `call search_emisor_comunicados(${data.emisor});`;
 	try {
@@ -290,7 +296,13 @@ app.route('/search_emisor_comunicados').post(async function (req, res) {
 			if (err) throw err;
 			connection.query(sql, function (err, result) {
 				if (err) throw err;
-				console.log(result);
+				let miArray = fixSearchResults(result[0]);
+				miArray.forEach((element) => {
+					console.log('---------');
+					element.comunicados = groupEtiquetas(element.comunicados);
+					console.log(element.comunicados);
+				});
+				res.json(miArray);
 			});
 			connection.release();
 		});
@@ -300,7 +312,7 @@ app.route('/search_emisor_comunicados').post(async function (req, res) {
 });
 
 //SP SECTION search_fecha_comunicados
-app.route('/search_fecha_comunicados').post(async function (req, res) {
+app.route('/Frontend_Comunicados_ET32/search_fecha_comunicados').post(async function (req, res) {
 	const data = req.body;
 	let sql = `call search_fecha_comunicados(${data.fecha});`;
 	try {
@@ -308,7 +320,13 @@ app.route('/search_fecha_comunicados').post(async function (req, res) {
 			if (err) throw err;
 			connection.query(sql, function (err, result) {
 				if (err) throw err;
-				console.log(result);
+				let miArray = fixSearchResults(result[0]);
+				miArray.forEach((element) => {
+					console.log('---------');
+					element.comunicados = groupEtiquetas(element.comunicados);
+					console.log(element.comunicados);
+				});
+				res.json(miArray);
 			});
 			connection.release();
 		});
@@ -318,7 +336,7 @@ app.route('/search_fecha_comunicados').post(async function (req, res) {
 });
 
 //SP SECTION search_leido_comunicados
-app.route('/search_leido_comunicados').post(async function (req, res) {
+app.route('/Frontend_Comunicados_ET32/search_leido_comunicados').post(async function (req, res) {
 	const data = req.body;
 	let sql = `call search_leido_comunicados(${data.leido});`;
 	try {
@@ -326,7 +344,13 @@ app.route('/search_leido_comunicados').post(async function (req, res) {
 			if (err) throw err;
 			connection.query(sql, function (err, result) {
 				if (err) throw err;
-				console.log(result);
+				let miArray = fixSearchResults(result[0]);
+				miArray.forEach((element) => {
+					console.log('---------');
+					element.comunicados = groupEtiquetas(element.comunicados);
+					console.log(element.comunicados);
+				});
+				res.json(miArray);
 			});
 			connection.release();
 		});
@@ -336,7 +360,7 @@ app.route('/search_leido_comunicados').post(async function (req, res) {
 });
 
 //SP SECTION search_titulo_comunicados
-app.route('/asd/search_titulo_comunicados').post(async function (req, res) {
+app.route('/Frontend_Comunicados_ET32/search_titulo_comunicados').post(async function (req, res) {
 	const data = req.body;
 	let sql = `call search_titulo_comunicados('${data.titulo}');`;
 	/* let sql = `call search_titulo_comunicados("");`; */
@@ -360,7 +384,7 @@ app.route('/asd/search_titulo_comunicados').post(async function (req, res) {
 	}
 });
 
-app.route('/asd/insertComunicado').get(async function (req, res) {
+app.route('/Frontend_Comunicados_ET32/insertComunicado').post(async function (req, res) {
 	const data = req.body;
 	// let sql = `SELECT bdt_cuaderno.insert_comunicado(${data.emisor}, "${data.titulo}", "${data.descripcion}", ${data.cursoReceptor});`;
 	let sql = `SELECT bdt_cuaderno.insert_comunicado(10000, "ttttti", "titttt", 2)`;
@@ -383,7 +407,7 @@ app.route('/asd/insertComunicado').get(async function (req, res) {
 	}
 });
 
-app.route('/asd/deleteComunicado').get(async function (req, res) {
+app.route('/Frontend_Comunicados_ET32/deleteComunicado').post(async function (req, res) {
 	const data = req.body;
 	// let sql = `SELECT bdt_cuaderno.delete_comunicado(${data.idComunicado});`;
 	let sql = `SELECT bdt_cuaderno.delete_comunicado(18)`;
@@ -406,7 +430,7 @@ app.route('/asd/deleteComunicado').get(async function (req, res) {
 	}
 });
 
-app.route('/asd/addCategoriaComunicado').get(async function (req, res) {
+app.route('/Frontend_Comunicados_ET32/addCategoriaComunicado').post(async function (req, res) {
 	const data = req.body;
 	// let sql = `SELECT bdt_cuaderno.add_categoria_comunicado(${data.idComunicado}, ${data.idCategoria});`;
 	let sql = `SELECT bdt_cuaderno.add_categoria_comunicado(17, 5)`;
@@ -429,7 +453,7 @@ app.route('/asd/addCategoriaComunicado').get(async function (req, res) {
 	}
 });
 
-app.route('/asd/deleteCategoriaComunicado').get(async function (req, res) {
+app.route('/Frontend_Comunicados_ET32/deleteCategoriaComunicado').post(async function (req, res) {
 	const data = req.body;
 	// let sql = `SELECT bdt_cuaderno.delete_categoria_comunicado(${data.idComunicado}, ${data.idCategoria});`;
 	let sql = `SELECT bdt_cuaderno.delete_categoria_comunicado(1, 333)`;
@@ -461,6 +485,7 @@ const groupEtiquetas = (finalArray) => {
 			id_etiqueta: element.id_categoria,
 			receptor: element.receptor,
 			etiqueta: element.etiqueta,
+			color: element.color,
 		};
 
 		if (element.id_categoria == null || element.id_categoria == undefined) {
@@ -513,184 +538,6 @@ const fixSearchResults = (resultArray) => {
 	return finalResult;
 };
 
-/*
-	let newResults = [];
-	let counterFechas = 0;
-	let counterComunicados = 0;
-	resultArray.forEach(result => {
-		if(newResults.length == 0){
-			newResults[counterFechas] = {};
-			newResults[counterFechas].fecha = result.fecha;
-
-			newResults[counterFechas].comunicados = [];
-			delete result.fecha;
-			newResults[counterFechas].comunicados[0] = result;
-			counterComunicados = 1;
-		}else{
-			let mustInsert;
-			let curLength = newResults.length
-			for (let i = 0; i < curLength; i++){
-			//newResults.forEach(newResult => {
-				console.log(Object.values(newResults)[i].fecha.toDateString());
-				if(Object.values(newResults)[i].fecha.toDateString() != result.fecha.toDateString()){
-					counterFechas++; 
-					newResults[counterFechas] = {};
-					newResults[counterFechas].fecha = result.fecha;
-					newResults[counterFechas].comunicados = [];
-					delete result.fecha;
-					newResults[counterFechas].comunicados[0] = result;
-					counterComunicados = 1;
-					curLength = newResults.length;
-					mustInsert = false;
-				}else{
-					mustInsert = true;
-					break;
-				}
-			};
-			if(mustInsert){
-				delete result.fecha;
-				newResults[counterFechas].comunicados[counterComunicados] = result;
-				counterComunicados++;
-			}
-		}
-
-	});
-	console.log(newResults);
-	return newResults;
-	*/
-
 app.listen(port, () => {
 	console.log(`Example app listening on port ${port}!`);
 });
-
-const hi = [
-	{
-		fecha: 'Thu Sep 09 2021 00:00:00 GMT-0300 (Argentina Standard Time)',
-		comunicados: [
-			{
-				fecha: '2021-09-09T03:00:00.000Z',
-				titulo: 'Hola',
-				emisor: 'Juan Pablo Aubone',
-				descripcion: 'Holaaa',
-				leido: 1,
-				Etiqueta: [
-					{
-						id_categoria: 1,
-						nombre: 'General',
-						color: '#121212',
-					},
-				],
-				receptor: 1,
-			},
-			{
-				fecha: '2021-09-09T03:00:00.000Z',
-				titulo: 'Hola',
-				emisor: 'Juan Pablo Aubone',
-				descripcion: 'Holaaa',
-				leido: 1,
-				Etiqueta: 'General',
-				receptor: 3,
-			},
-		],
-	},
-	{
-		fecha: 'Thu Oct 21 2021 00:00:00 GMT-0300 (Argentina Standard Time)',
-		comunicados: [
-			{
-				fecha: '2021-10-21T03:00:00.000Z',
-				titulo: 'Titulo de prueba',
-				emisor: 'Ke Ke',
-				descripcion: 'Desc de prueba',
-				leido: 0,
-				Etiqueta: null,
-				receptor: 1,
-			},
-			{
-				fecha: '2021-10-21T03:00:00.000Z',
-				titulo: 'Titulo de prueba',
-				emisor: 'Ke Ke',
-				descripcion: 'Desc de prueba',
-				leido: 0,
-				Etiqueta: null,
-				receptor: 1,
-			},
-			{
-				fecha: '2021-10-21T03:00:00.000Z',
-				titulo: 'Titulo de PRUEBA ',
-				emisor: 'Ke Ke',
-				descripcion: 'Desc de prue+ba',
-				leido: 0,
-				Etiqueta: null,
-				receptor: 1,
-			},
-			{
-				fecha: '2021-10-21T03:00:00.000Z',
-				titulo: 'Titulo de PRUEBA ',
-				emisor: 'Ke Ke',
-				descripcion: 'Desc de prue+ba',
-				leido: 0,
-				Etiqueta: null,
-				receptor: 2,
-			},
-			{
-				fecha: '2021-10-21T03:00:00.000Z',
-				titulo: 'Titulo de PRUEBA ',
-				emisor: 'Ke Ke',
-				descripcion: 'Desc de prue+ba',
-				leido: 0,
-				Etiqueta: null,
-				receptor: 3,
-			},
-			{
-				fecha: '2021-10-21T03:00:00.000Z',
-				titulo: 'Titulo de PRUEBA ',
-				emisor: 'Ke Ke',
-				descripcion: 'Desc de prue+ba',
-				leido: 0,
-				Etiqueta: null,
-				receptor: 4,
-			},
-		],
-	},
-	{
-		fecha: 'Fri Oct 22 2021 00:00:00 GMT-0300 (Argentina Standard Time)',
-		comunicados: [
-			{
-				fecha: '2021-10-22T03:00:00.000Z',
-				titulo: '22 10 2021',
-				emisor: 'Carlos Menem',
-				descripcion: 'Hoy es 22 10 2021',
-				leido: 0,
-				Etiqueta: null,
-				receptor: 1,
-			},
-			{
-				fecha: '2021-10-22T03:00:00.000Z',
-				titulo: '22 10 2021',
-				emisor: 'Carlos Menem',
-				descripcion: 'Hoy es 22 10 2021',
-				leido: 0,
-				Etiqueta: null,
-				receptor: 2,
-			},
-			{
-				fecha: '2021-10-22T03:00:00.000Z',
-				titulo: '22 10 2021',
-				emisor: 'Carlos Menem',
-				descripcion: 'Hoy es 22 10 2021',
-				leido: 0,
-				Etiqueta: null,
-				receptor: 3,
-			},
-			{
-				fecha: '2021-10-22T03:00:00.000Z',
-				titulo: '22 10 2021',
-				emisor: 'Carlos Menem',
-				descripcion: 'Hoy es 22 10 2021',
-				leido: 0,
-				Etiqueta: null,
-				receptor: 4,
-			},
-		],
-	},
-];
