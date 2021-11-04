@@ -4,10 +4,10 @@ let MySQLStore = require('express-mysql-session')(session);
 let connectionPool = database.newPool();
 
 let options = {
-    host     : 'localhost',
-    port     : 3306,   
-    user     : 'root',
-    password : '',
+    host     : '190.111.211.91',
+    port     : 33060,   
+    user     : 'bdtdeploy',
+    password : 'Leg0las2K19',
     database : 'bdt_cuaderno',
     clearExpired : true,
     checkExpirationInterval: 15000,

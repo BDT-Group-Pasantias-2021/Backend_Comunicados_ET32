@@ -10,7 +10,7 @@ let pool = database.newPool();
 let sessionStore = mysqlsessionstore.createStore();
 
 const app = express();
-const port = 3001;
+const port = 3005;
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
