@@ -1,4 +1,5 @@
 /* eslint-disable eqeqeq */
+const variables = require('./variables');
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -6,6 +7,7 @@ const session = require('express-session');
 const database = require('./db_connection');
 const mysqlsessionstore = require('./session_store');
 const sendEmail = require('./email/template/send_email');
+
 let pool = database.newPool();
 let sessionStore = mysqlsessionstore.createStore();
 
@@ -26,7 +28,7 @@ app.use(
 	})
 );
 
-app.route('/Frontend_Comunicados_ET32/register').post(function (req, res) {
+app.route(`/${variables.baseName}/register`).post(function (req, res) {
 	//
 	const data = req.body;
 	let sql = `SELECT insert_user(${data.documento}, "${data.nombre}", "${data.apellido}", '2000-11-11', '0000000000', '1', '${data.email}', '${data.password}', '${data.confirmar_contraseña}', ${data.tipo_documento})`;
@@ -40,14 +42,14 @@ app.route('/Frontend_Comunicados_ET32/register').post(function (req, res) {
 				console.log(JSON.parse(JSON.stringify(result[0])));
 				/* res.json(registerAccepted);*/
 				/* return */
-				let sqlRegister = `SELECT bdt_cuaderno.login_user_node_session("${data.email}", "${data.password}")`;
+				let sqlRegister = `SELECT ${variables.databaseName}.login_user_node_session("${data.email}", "${data.password}")`;
 				pool.getConnection(function (err, connection) {
 					if (err) throw err;
 					connection.query(sqlRegister, function (err, result) {
 						if (err) throw err;
 						let loginAccepted = Object.values(JSON.parse(JSON.stringify(result[0])));
 						if (loginAccepted == 1) {
-							let sqlSession = `SELECT bdt_cuaderno.restrict_session("${req.sessionID}", "${data.email}")`;
+							let sqlSession = `SELECT ${variables.databaseName}.restrict_session("${req.sessionID}", "${data.email}")`;
 
 							req.session.email = data.email;
 							req.session.save();
@@ -76,9 +78,9 @@ app.route('/Frontend_Comunicados_ET32/register').post(function (req, res) {
 	}
 });
 
-app.route('/Frontend_Comunicados_ET32/recoverPassword').post(function (req, res) {
+app.route(`/${variables.baseName}/recoverPassword`).post(function (req, res) {
 	const data = req.body;
-	let sqlRecovery = `select pass_recovery('${data.documento}', '${data.email}')`;
+	let sqlRecovery = `SELECT pass_recovery('${data.documento}', '${data.email}')`;
 	let sqlTokenId = `SELECT recovery_token FROM personas where email = "${data.email}";`;
 	try {
 		pool.getConnection(function (err, connection) {
@@ -124,7 +126,7 @@ app.route('/Frontend_Comunicados_ET32/recoverPassword').post(function (req, res)
 									name: userName,
 									hours: hora,
 									date: fecha,
-									link: `localhost:3000/Frontend_Comunicados_ET32?change-password=${recoveryToken}&email=${data.email}`,
+									link: `${variables.host}:${variables.frontendPort}${variables.frontendPort}?change-password=${recoveryToken}&email=${data.email}`,
 								},
 								'./test.handlebars',
 								data.email
@@ -179,7 +181,7 @@ let dynamicToken = (recoveryToken, newPass, newRePass) =>
 		}
 	});
 
-app.route('/Frontend_Comunicados_ET32/setNewPassword').post(function (req, res) {
+app.route(`/${variables.baseName}/setNewPassword`).post(function (req, res) {
 	let data = req.body;
 	console.log('hi');
 	try {
@@ -202,9 +204,9 @@ app.route('/Frontend_Comunicados_ET32/setNewPassword').post(function (req, res) 
 	}
 });
 
-app.route('/Frontend_Comunicados_ET32/validateSession').post(function (req, res) {
+app.route(`/${variables.baseName}/validateSession`).post(function (req, res) {
 	let data = req.body;
-	let sql = `SELECT bdt_cuaderno.refresh_session(${data.sessionID}, ${data.sessionEmail})`;
+	let sql = `SELECT ${variables.databaseName}.refresh_session(${data.sessionID}, ${data.sessionEmail})`;
 	try {
 		pool.getConnection(function (err, connection) {
 			if (err) throw err;
@@ -224,10 +226,10 @@ app.route('/Frontend_Comunicados_ET32/validateSession').post(function (req, res)
 	}
 });
 
-app.route('/Frontend_Comunicados_ET32/login').post(async function (req, res) {
+app.route(`/${variables.baseName}/login`).post(async function (req, res) {
 	const data = req.body;
 	req.session.cookie.email = data.email;
-	let sql = `SELECT bdt_cuaderno.login_user_node_session("${data.email}", "${data.password}")`;
+	let sql = `SELECT ${variables.databaseName}.login_user_node_session("${data.email}", "${data.password}")`;
 	try {
 		pool.getConnection(function (err, connection) {
 			if (err) throw err;
@@ -235,7 +237,7 @@ app.route('/Frontend_Comunicados_ET32/login').post(async function (req, res) {
 				if (err) throw err;
 				let loginAccepted = Object.values(JSON.parse(JSON.stringify(result[0])));
 				if (loginAccepted == 1) {
-					let sqlSession = `SELECT bdt_cuaderno.restrict_session("${req.sessionID}", "${data.email}")`;
+					let sqlSession = `SELECT ${variables.databaseName}.restrict_session("${req.sessionID}", "${data.email}")`;
 
 					req.session.email = data.email;
 					req.session.save();
@@ -263,7 +265,7 @@ app.route('/Frontend_Comunicados_ET32/login').post(async function (req, res) {
 });
 
 //SP SECTION search_id_tiposComunicados
-app.route('/Frontend_Comunicados_ET32/search_id_tiposComunicados').post(async function (req, res) {
+app.route(`/${variables.baseName}/search_id_tiposComunicados`).post(async function (req, res) {
 	const data = req.body;
 	let sql = `call search_id_tiposComunicados(${data.id});`;
 	try {
@@ -288,7 +290,7 @@ app.route('/Frontend_Comunicados_ET32/search_id_tiposComunicados').post(async fu
 
 //SP SECTION search_emisor_comunicados
 
-app.route('/Frontend_Comunicados_ET32/search_emisor_comunicados').post(async function (req, res) {
+app.route(`/${variables.baseName}/search_emisor_comunicados`).post(async function (req, res) {
 	const data = req.body;
 	let sql = `call search_emisor_comunicados(${data.emisor});`;
 	try {
@@ -312,7 +314,7 @@ app.route('/Frontend_Comunicados_ET32/search_emisor_comunicados').post(async fun
 });
 
 //SP SECTION search_fecha_comunicados
-app.route('/Frontend_Comunicados_ET32/search_fecha_comunicados').post(async function (req, res) {
+app.route(`/${variables.baseName}/search_fecha_comunicados`).post(async function (req, res) {
 	const data = req.body;
 	let sql = `call search_fecha_comunicados(${data.fecha});`;
 	try {
@@ -321,6 +323,7 @@ app.route('/Frontend_Comunicados_ET32/search_fecha_comunicados').post(async func
 			connection.query(sql, function (err, result) {
 				if (err) throw err;
 				let miArray = fixSearchResults(result[0]);
+				req.session.d
 				miArray.forEach((element) => {
 					console.log('---------');
 					element.comunicados = groupEtiquetas(element.comunicados);
@@ -336,7 +339,7 @@ app.route('/Frontend_Comunicados_ET32/search_fecha_comunicados').post(async func
 });
 
 //SP SECTION search_leido_comunicados
-app.route('/Frontend_Comunicados_ET32/search_leido_comunicados').post(async function (req, res) {
+app.route(`/${variables.baseName}/search_leido_comunicados`).post(async function (req, res) {
 	const data = req.body;
 	let sql = `call search_leido_comunicados(${data.leido});`;
 	try {
@@ -360,7 +363,7 @@ app.route('/Frontend_Comunicados_ET32/search_leido_comunicados').post(async func
 });
 
 //SP SECTION search_titulo_comunicados
-app.route('/Frontend_Comunicados_ET32/search_titulo_comunicados').post(async function (req, res) {
+app.route(`/${variables.baseName}/search_titulo_comunicados`).post(async function (req, res) {
 	const data = req.body;
 	let sql = `call search_titulo_comunicados('${data.titulo}');`;
 	/* let sql = `call search_titulo_comunicados("");`; */
@@ -384,10 +387,10 @@ app.route('/Frontend_Comunicados_ET32/search_titulo_comunicados').post(async fun
 	}
 });
 
-app.route('/Frontend_Comunicados_ET32/insertComunicado').post(async function (req, res) {
+app.route(`/${variables.baseName}/insertComunicado`).post(async function (req, res) {
 	const data = req.body;
-	// let sql = `SELECT bdt_cuaderno.insert_comunicado(${data.emisor}, "${data.titulo}", "${data.descripcion}", ${data.cursoReceptor});`;
-	let sql = `SELECT bdt_cuaderno.insert_comunicado(10000, "ttttti", "titttt", 2)`;
+	// let sql = `SELECT ${variables.databaseName}.insert_comunicado(${data.emisor}, "${data.titulo}", "${data.descripcion}", ${data.cursoReceptor});`;
+	let sql = `SELECT ${variables.databaseName}.insert_comunicado(10000, "ttttti", "titttt", 2)`;
 	try {
 		pool.getConnection(function (err, connection) {
 			if (err) throw err;
@@ -407,10 +410,10 @@ app.route('/Frontend_Comunicados_ET32/insertComunicado').post(async function (re
 	}
 });
 
-app.route('/Frontend_Comunicados_ET32/deleteComunicado').post(async function (req, res) {
+app.route(`/${variables.baseName}/deleteComunicado`).post(async function (req, res) {
 	const data = req.body;
-	// let sql = `SELECT bdt_cuaderno.delete_comunicado(${data.idComunicado});`;
-	let sql = `SELECT bdt_cuaderno.delete_comunicado(18)`;
+	// let sql = `SELECT ${variables.databaseName}.delete_comunicado(${data.idComunicado});`;
+	let sql = `SELECT ${variables.databaseName}.delete_comunicado(18)`;
 	try {
 		pool.getConnection(function (err, connection) {
 			if (err) throw err;
@@ -430,10 +433,10 @@ app.route('/Frontend_Comunicados_ET32/deleteComunicado').post(async function (re
 	}
 });
 
-app.route('/Frontend_Comunicados_ET32/addCategoriaComunicado').post(async function (req, res) {
+app.route(`/${variables.baseName}/addCategoriaComunicado`).post(async function (req, res) {
 	const data = req.body;
-	// let sql = `SELECT bdt_cuaderno.add_categoria_comunicado(${data.idComunicado}, ${data.idCategoria});`;
-	let sql = `SELECT bdt_cuaderno.add_categoria_comunicado(17, 5)`;
+	// let sql = `SELECT ${variables.databaseName}.add_categoria_comunicado(${data.idComunicado}, ${data.idCategoria});`;
+	let sql = `SELECT ${variables.databaseName}.add_categoria_comunicado(17, 5)`;
 	try {
 		pool.getConnection(function (err, connection) {
 			if (err) throw err;
@@ -453,10 +456,10 @@ app.route('/Frontend_Comunicados_ET32/addCategoriaComunicado').post(async functi
 	}
 });
 
-app.route('/Frontend_Comunicados_ET32/deleteCategoriaComunicado').post(async function (req, res) {
+app.route(`/${variables.baseName}/deleteCategoriaComunicado`).post(async function (req, res) {
 	const data = req.body;
-	// let sql = `SELECT bdt_cuaderno.delete_categoria_comunicado(${data.idComunicado}, ${data.idCategoria});`;
-	let sql = `SELECT bdt_cuaderno.delete_categoria_comunicado(1, 333)`;
+	// let sql = `SELECT ${variables.databaseName}.delete_categoria_comunicado(${data.idComunicado}, ${data.idCategoria});`;
+	let sql = `SELECT ${variables.databaseName}.delete_categoria_comunicado(1, 333)`;
 	try {
 		pool.getConnection(function (err, connection) {
 			if (err) throw err;
@@ -540,4 +543,5 @@ const fixSearchResults = (resultArray) => {
 
 app.listen(port, () => {
 	console.log(`Example app listening on port ${port}!`);
+	console.log(variables.databaseName);
 });

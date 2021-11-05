@@ -1,3 +1,4 @@
+const variables = require('./variables');
 const session = require('express-session');
 const database = require("./db_connection");
 let MySQLStore = require('express-mysql-session')(session);
@@ -8,7 +9,7 @@ let options = {
     port     : 33060,   
     user     : 'bdtdeploy',
     password : 'Leg0las2K19',
-    database : 'bdt_cuaderno',
+    database :  variables.databaseName,
     clearExpired : true,
     checkExpirationInterval: 15000,
     expiration: 15000,
