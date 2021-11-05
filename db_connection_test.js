@@ -28,8 +28,38 @@ app.use(
 	})
 );
 
+app.route(`/${variables.baseName}/logout`).post((req, res) => {	
+	req.session.destroy(function(err) {
+		if (err) {
+			console.log(err);
+		} else {
+			res.send('logout');
+			console.log('Session deleted');
+		}
+	});
+	const data = req.body;
+	let sql = `select ${variables.databaseName}.destroy_session(${data.sessionID});`;
+		try {
+			pool.getConnection(function (err, connection) {
+				if (err) throw err;
+				connection.query(sql, function (err, result) {
+					if (err) throw err;
+					let isDeleted = Object.values(result[0])[0];
+					if(isDeleted == 1){
+						console.log('Session deleted');
+					}else{
+						console.log('Session not deleted');				
+					}
+				
+				});
+			});
+		} catch (error) {
+			console.log(error);
+		}
+});
+
+
 app.route(`/${variables.baseName}/register`).post(function (req, res) {
-	//
 	const data = req.body;
 	let sql = `SELECT insert_user(${data.documento}, "${data.nombre}", "${data.apellido}", '2000-11-11', '0000000000', '1', '${data.email}', '${data.password}', '${data.confirmar_contraseña}', ${data.tipo_documento})`;
 	try {
