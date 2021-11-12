@@ -523,7 +523,7 @@ const groupEtiquetas = (finalArray) => {
 
 		if (element.id_categoria == null || element.id_categoria == undefined) {
 			groupedArray.push({
-				id: element.id,
+				id_comunicaciones: element.id,
 				fecha: element.fecha,
 				titulo: element.titulo,
 				emisor: element.emisor,
@@ -533,7 +533,7 @@ const groupEtiquetas = (finalArray) => {
 			});
 		} else if (index === -1) {
 			groupedArray.push({
-				id: element.id,
+				id_comunicaciones: element.id,
 				fecha: element.fecha,
 				titulo: element.titulo,
 				emisor: element.emisor,

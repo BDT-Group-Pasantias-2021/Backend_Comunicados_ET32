@@ -9,7 +9,7 @@ const sendEmail = async (payload, template, targetEmail) => {
 		service: 'gmail',
 		auth: {
 			user: 'teamrasn@gmail.com',
-			pass: 'p1t0d3c4br4',
+			pass: 'P1t0d3c4br4',
 		},
 	});
 	const source = fs.readFileSync(path.join(__dirname, template), 'utf8');
