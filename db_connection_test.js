@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable eqeqeq */
 const variables = require('./variables');
 const express = require('express');
@@ -344,7 +345,7 @@ app.route(`/${variables.baseName}/search_emisor_comunicados`).post(async functio
 //SP SECTION search_emisor_comunicados
 app.route(`/${variables.baseName}/search_receptor_comunicados`).post(async function (req, res) {
 	const data = req.body;
-	let sql = `call search_receptor_comunicados(${data.emaoñ});`;
+	let sql = `call search_receptor_comunicados(${data.email});`;
 	try {
 		pool.getConnection(function (err, connection) {
 			if (err) throw err;
@@ -427,11 +428,6 @@ app.route(`/${variables.baseName}/search_titulo_comunicados`).post(async functio
 				miArray.forEach((element) => {
 					element.comunicados = groupEtiquetas(element.comunicados);
 				});
-/* 				console.log("------------");
-				miArray.forEach((element) => {
-					console.log("------------");
-					console.log(element.comunicados);
-				}); */
 				res.json(miArray);
 			});
 			connection.release();
@@ -555,7 +551,6 @@ app.route(`/${variables.baseName}/firmarComunicado`).post(async function (req, r
 		console.log(error);
 	}
 });
-
 
 // Agrupar objetos con el mismo id y juntar sus etiquetas
 const groupEtiquetas = (finalArray) => {
