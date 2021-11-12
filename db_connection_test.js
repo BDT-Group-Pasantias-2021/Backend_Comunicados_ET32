@@ -156,9 +156,9 @@ app.route(`/${variables.baseName}/recoverPassword`).post(function (req, res) {
 									name: userName,
 									hours: hora,
 									date: fecha,
-									link: `${variables.host}:${variables.frontendPort}${variables.frontendPort}?change-password=${recoveryToken}&email=${data.email}`,
+									link: `${variables.host}:${variables.frontendPort}?change-password=${recoveryToken}&email=${data.email}`,
 								},
-								'./test.handlebars',
+								'/test.handlebars',
 								data.email
 							);
 							let testVar = { status: 1 }; //1: completado
