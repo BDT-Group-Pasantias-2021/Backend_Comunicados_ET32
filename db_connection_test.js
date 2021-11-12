@@ -28,8 +28,8 @@ app.use(
 	})
 );
 
-app.route(`/${variables.baseName}/logout`).post((req, res) => {	
-	req.session.destroy(function(err) {
+app.route(`/${variables.baseName}/logout`).post((req, res) => {
+	req.session.destroy(function (err) {
 		if (err) {
 			console.log(err);
 		} else {
@@ -39,25 +39,23 @@ app.route(`/${variables.baseName}/logout`).post((req, res) => {
 	});
 	const data = req.body;
 	let sql = `select ${variables.databaseName}.destroy_session(${data.sessionID});`;
-		try {
-			pool.getConnection(function (err, connection) {
+	try {
+		pool.getConnection(function (err, connection) {
+			if (err) throw err;
+			connection.query(sql, function (err, result) {
 				if (err) throw err;
-				connection.query(sql, function (err, result) {
-					if (err) throw err;
-					let isDeleted = Object.values(result[0])[0];
-					if(isDeleted == 1){
-						console.log('Session deleted');
-					}else{
-						console.log('Session not deleted');				
-					}
-				
-				});
+				let isDeleted = Object.values(result[0])[0];
+				if (isDeleted == 1) {
+					console.log('Session deleted');
+				} else {
+					console.log('Session not deleted');
+				}
 			});
-		} catch (error) {
-			console.log(error);
-		}
+		});
+	} catch (error) {
+		console.log(error);
+	}
 });
-
 
 app.route(`/${variables.baseName}/register`).post(function (req, res) {
 	const data = req.body;
