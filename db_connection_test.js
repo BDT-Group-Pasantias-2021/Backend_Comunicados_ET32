@@ -537,8 +537,8 @@ app.route(`/${variables.baseName}/deleteCategoriaComunicado`).post(async functio
 
 app.route(`/${variables.baseName}/firmarComunicado`).post(async function (req, res) {
 	const data = req.body;
-	// let sql = `SELECT ${variables.databaseName}.firmar_comunicado(${data.idComunicado}, ${data.email});`;
-	let sql = `SELECT ${variables.databaseName}.firmar_comunicado(17, 1);`;
+	let sql = `SELECT ${variables.databaseName}.firmar_comunicado(${data.idComunicado}, ${data.email});`;
+	/* let sql = `SELECT ${variables.databaseName}.firmar_comunicado(17, 1);`; */
 	try {
 		pool.getConnection(function (err, connection) {
 			if (err) throw err;
