@@ -346,7 +346,7 @@ app.route(`/${variables.baseName}/search_emisor_comunicados`).post(async functio
 //SP SECTION search_emisor_comunicados
 app.route(`/${variables.baseName}/search_receptor_comunicados`).post(async function (req, res) {
 	const data = req.body;
-	let sql = `call search_receptor_comunicados(${data.emaoñ});`;
+	let sql = `call search_receptor_comunicados(${data.email});`;
 	try {
 		pool.getConnection(function (err, connection) {
 			if (err) throw err;
@@ -468,8 +468,7 @@ app.route(`/${variables.baseName}/insertComunicado`).post(async function (req, r
 
 app.route(`/${variables.baseName}/deleteComunicado`).post(async function (req, res) {
 	const data = req.body;
-	// let sql = `SELECT ${variables.databaseName}.delete_comunicado(${data.idComunicado});`;
-	let sql = `SELECT ${variables.databaseName}.delete_comunicado(18)`;
+	let sql = `SELECT ${variables.databaseName}.delete_comunicado(${data.idComunicado});`;
 	try {
 		pool.getConnection(function (err, connection) {
 			if (err) throw err;
