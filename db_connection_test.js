@@ -462,8 +462,7 @@ app.route(`/${variables.baseName}/insertComunicado`).post(async function (req, r
 
 app.route(`/${variables.baseName}/deleteComunicado`).post(async function (req, res) {
 	const data = req.body;
-	// let sql = `SELECT ${variables.databaseName}.delete_comunicado(${data.idComunicado});`;
-	let sql = `SELECT ${variables.databaseName}.delete_comunicado(18)`;
+	let sql = `SELECT ${variables.databaseName}.delete_comunicado(${data.idComunicado});`;
 	try {
 		pool.getConnection(function (err, connection) {
 			if (err) throw err;
