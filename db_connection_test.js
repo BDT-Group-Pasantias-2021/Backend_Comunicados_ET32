@@ -464,8 +464,7 @@ app.route(`/${variables.baseName}/search_titulo_comunicados`).post(async functio
 
 app.route(`/${variables.baseName}/insertComunicado`).post(async function (req, res) {
 	const data = req.body;
-	// let sql = `SELECT ${variables.databaseName}.insert_comunicado(${data.emisor}, "${data.titulo}", "${data.descripcion}", ${data.cursoReceptor});`;
-	let sql = `SELECT ${variables.databaseName}.insert_comunicado(10000, "ttttti", "titttt", 2)`;
+	let sql = `SELECT ${variables.databaseName}.insert_comunicado("${data.emisor}", "${data.titulo}", "${data.descripcion}", ${data.cursoReceptor});`;
 	try {
 		pool.getConnection(function (err, connection) {
 			if (err) throw err;
@@ -567,6 +566,27 @@ app.route(`/${variables.baseName}/firmarComunicado`).post(async function (req, r
 
 				//1: realizado, 2: usuario no existe, 3: comunicado no existe
 				let response = { status: parseInt(queryResult) };
+				res.json(response);
+			});
+			connection.release();
+		});
+	} catch (error) {
+		console.log(error);
+	}
+});
+
+//Get cursos from sql database
+app.route(`/${variables.baseName}/getCursos`).post(async function (req, res) {
+	let sql = `SELECT ${variables.databaseName}.cursos_disponibles();`;
+	try {
+		pool.getConnection(function (err, connection) {
+			if (err) throw err;
+			connection.query(sql, function (err, result) {
+				if (err) throw err;
+				let response = {
+					status: 1,
+					result: result,
+				};
 				res.json(response);
 			});
 			connection.release();
