@@ -297,6 +297,31 @@ app.route(`/${variables.baseName}/login`).post(async function (req, res) {
 app.route(`/${variables.baseName}/search_id_tiposComunicados`).post(async function (req, res) {
 	const data = req.body;
 	let sql = `call search_id_tiposComunicados(${data.id});`;
+	console.log(sql);
+	try {
+		pool.getConnection(function (err, connection) {
+			if (err) throw err;
+			connection.query(sql, function (err, result) {
+				if (err) throw err;
+				let miArray = fixSearchResults(result[0]);
+				miArray.forEach((element) => {
+					console.log('---------');
+					element.comunicados = groupEtiquetas(element.comunicados);
+					console.log(element.comunicados);
+				});
+				res.json(miArray);
+			});
+			connection.release();
+		});
+	} catch (error) {
+		console.log(error);
+	}
+});
+//SP SECTION search_all_comunicados
+app.route(`/${variables.baseName}/search_all_comunicados`).post(async function (req, res) {
+	const data = req.body;
+	let sql = `call search_all_comunicados();`;
+	console.log(sql);
 	try {
 		pool.getConnection(function (err, connection) {
 			if (err) throw err;
