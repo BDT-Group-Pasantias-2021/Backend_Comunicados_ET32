@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable eqeqeq */
 const variables = require('./variables');
 const express = require('express');
@@ -28,8 +29,8 @@ app.use(
 	})
 );
 
-app.route(`/${variables.baseName}/logout`).post((req, res) => {	
-	req.session.destroy(function(err) {
+app.route(`/${variables.baseName}/logout`).post((req, res) => {
+	req.session.destroy(function (err) {
 		if (err) {
 			console.log(err);
 		} else {
@@ -39,25 +40,23 @@ app.route(`/${variables.baseName}/logout`).post((req, res) => {
 	});
 	const data = req.body;
 	let sql = `select ${variables.databaseName}.destroy_session(${data.sessionID});`;
-		try {
-			pool.getConnection(function (err, connection) {
+	try {
+		pool.getConnection(function (err, connection) {
+			if (err) throw err;
+			connection.query(sql, function (err, result) {
 				if (err) throw err;
-				connection.query(sql, function (err, result) {
-					if (err) throw err;
-					let isDeleted = Object.values(result[0])[0];
-					if(isDeleted == 1){
-						console.log('Session deleted');
-					}else{
-						console.log('Session not deleted');				
-					}
-				
-				});
+				let isDeleted = Object.values(result[0])[0];
+				if (isDeleted == 1) {
+					console.log('Session deleted');
+				} else {
+					console.log('Session not deleted');
+				}
 			});
-		} catch (error) {
-			console.log(error);
-		}
+		});
+	} catch (error) {
+		console.log(error);
+	}
 });
-
 
 app.route(`/${variables.baseName}/register`).post(function (req, res) {
 	const data = req.body;
@@ -343,6 +342,30 @@ app.route(`/${variables.baseName}/search_emisor_comunicados`).post(async functio
 	}
 });
 
+//SP SECTION search_emisor_comunicados
+app.route(`/${variables.baseName}/search_receptor_comunicados`).post(async function (req, res) {
+	const data = req.body;
+	let sql = `call search_receptor_comunicados(${data.email});`;
+	try {
+		pool.getConnection(function (err, connection) {
+			if (err) throw err;
+			connection.query(sql, function (err, result) {
+				if (err) throw err;
+				let miArray = fixSearchResults(result[0]);
+				miArray.forEach((element) => {
+					console.log('---------');
+					element.comunicados = groupEtiquetas(element.comunicados);
+					console.log(element.comunicados);
+				});
+				res.json(miArray);
+			});
+			connection.release();
+		});
+	} catch (error) {
+		console.log(error);
+	}
+});
+
 //SP SECTION search_fecha_comunicados
 app.route(`/${variables.baseName}/search_fecha_comunicados`).post(async function (req, res) {
 	const data = req.body;
@@ -353,7 +376,6 @@ app.route(`/${variables.baseName}/search_fecha_comunicados`).post(async function
 			connection.query(sql, function (err, result) {
 				if (err) throw err;
 				let miArray = fixSearchResults(result[0]);
-				req.session.d
 				miArray.forEach((element) => {
 					console.log('---------');
 					element.comunicados = groupEtiquetas(element.comunicados);
@@ -404,9 +426,7 @@ app.route(`/${variables.baseName}/search_titulo_comunicados`).post(async functio
 				if (err) throw err;
 				let miArray = fixSearchResults(result[0]);
 				miArray.forEach((element) => {
-					console.log('---------');
 					element.comunicados = groupEtiquetas(element.comunicados);
-					console.log(element.comunicados);
 				});
 				res.json(miArray);
 			});
@@ -509,11 +529,34 @@ app.route(`/${variables.baseName}/deleteCategoriaComunicado`).post(async functio
 	}
 });
 
+app.route(`/${variables.baseName}/firmarComunicado`).post(async function (req, res) {
+	const data = req.body;
+	let sql = `SELECT ${variables.databaseName}.firmar_comunicado(${data.idComunicado}, ${data.email});`;
+	/* let sql = `SELECT ${variables.databaseName}.firmar_comunicado(17, 1);`; */
+	try {
+		pool.getConnection(function (err, connection) {
+			if (err) throw err;
+			connection.query(sql, function (err, result) {
+				if (err) throw err;
+
+				let queryResult = Object.values(JSON.parse(JSON.stringify(result[0])));
+
+				//1: realizado, 2: usuario no existe, 3: comunicado no existe
+				let response = { status: parseInt(queryResult) };
+				res.json(response);
+			});
+			connection.release();
+		});
+	} catch (error) {
+		console.log(error);
+	}
+});
+
 // Agrupar objetos con el mismo id y juntar sus etiquetas
 const groupEtiquetas = (finalArray) => {
 	let groupedArray = [];
 	finalArray.forEach((element) => {
-		let index = groupedArray.findIndex((x) => x.id === element.id);
+		let index = groupedArray.findIndex((x) => x.id_comunicaciones === element.id);
 		let tempEtiqueta = {
 			id_etiqueta: element.id_categoria,
 			receptor: element.receptor,
@@ -523,22 +566,22 @@ const groupEtiquetas = (finalArray) => {
 
 		if (element.id_categoria == null || element.id_categoria == undefined) {
 			groupedArray.push({
-				id: element.id,
+				id_comunicaciones: element.id,
 				fecha: element.fecha,
 				titulo: element.titulo,
 				emisor: element.emisor,
 				descripcion: element.descripcion,
-				leido: element.leido,
+				leido: !!element.leido,
 				receptor: element.receptor,
 			});
 		} else if (index === -1) {
 			groupedArray.push({
-				id: element.id,
+				id_comunicaciones: element.id,
 				fecha: element.fecha,
 				titulo: element.titulo,
 				emisor: element.emisor,
 				descripcion: element.descripcion,
-				leido: element.leido,
+				leido: !!element.leido,
 				receptor: element.receptor,
 				etiquetas: [tempEtiqueta],
 			});
@@ -546,6 +589,7 @@ const groupEtiquetas = (finalArray) => {
 			groupedArray[index].etiquetas.push(tempEtiqueta);
 		}
 	});
+	console.log(groupedArray);
 	return groupedArray;
 };
 // Group objects by attribute fecha and return an array of objects with the same fecha
@@ -567,7 +611,6 @@ const fixSearchResults = (resultArray) => {
 		obj.comunicados = grouped[key];
 		finalResult.push(obj);
 	}
-
 	return finalResult;
 };
 
