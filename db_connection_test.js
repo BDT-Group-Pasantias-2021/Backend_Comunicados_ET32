@@ -577,7 +577,29 @@ app.route(`/${variables.baseName}/firmarComunicado`).post(async function (req, r
 
 //Get cursos from sql database
 app.route(`/${variables.baseName}/getCursos`).post(async function (req, res) {
-	let sql = `SELECT ${variables.databaseName}.cursos_disponibles();`;
+	let sql = `SELECT ${variables.databaseName}.cursos_disponibles;`;
+	try {
+		pool.getConnection(function (err, connection) {
+			if (err) throw err;
+			connection.query(sql, function (err, result) {
+				if (err) throw err;
+				let response = {
+					status: 1,
+					result: result,
+				};
+				res.json(response);
+			});
+			connection.release();
+		});
+	} catch (error) {
+		console.log(error);
+	}
+});
+
+//Get categorias de usuario from sql database
+app.route(`/${variables.baseName}/getPermisosUsuario`).post(async function (req, res) {
+	const data = req.body;
+	let sql = `SELECT ${variables.databaseName}.search_permisos_usuario(${data.email});`;
 	try {
 		pool.getConnection(function (err, connection) {
 			if (err) throw err;
