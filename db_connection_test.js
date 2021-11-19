@@ -577,7 +577,7 @@ app.route(`/${variables.baseName}/firmarComunicado`).post(async function (req, r
 
 //Get cursos from sql database
 app.route(`/${variables.baseName}/getCursos`).post(async function (req, res) {
-	let sql = `SELECT ${variables.databaseName}.cursos_disponibles;`;
+	let sql = `SELECT * FROM ${variables.databaseName}.cursos_disponibles;`;
 	try {
 		pool.getConnection(function (err, connection) {
 			if (err) throw err;
