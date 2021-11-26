@@ -618,6 +618,28 @@ app.route(`/${variables.baseName}/getPermisosUsuario`).post(async function (req,
 	}
 });
 
+//Get categorias de comunicado from sql database
+app.route(`/${variables.baseName}/getCategoriasComunicados`).post(async function (req, res) {
+	const data = req.body;
+	let sql = `SELECT * FROM ${variables.databaseName}.categorias_comunicados;`;
+	try {
+		pool.getConnection(function (err, connection) {
+			if (err) throw err;
+			connection.query(sql, function (err, result) {
+				if (err) throw err;
+				let response = {
+					status: 1,
+					result: result,
+				};
+				res.json(response);
+			});
+			connection.release();
+		});
+	} catch (error) {
+		console.log(error);
+	}
+});
+
 // Agrupar objetos con el mismo id y juntar sus etiquetas
 const groupEtiquetas = (finalArray) => {
 	let groupedArray = [];
