@@ -508,8 +508,8 @@ app.route(`/${variables.baseName}/deleteComunicado`).post(async function (req, r
 
 app.route(`/${variables.baseName}/addCategoriaComunicado`).post(async function (req, res) {
 	const data = req.body;
-	// let sql = `SELECT ${variables.databaseName}.add_categoria_comunicado(${data.idComunicado}, ${data.idCategoria});`;
-	let sql = `SELECT ${variables.databaseName}.add_categoria_comunicado(17, 5)`;
+	let sql = `SELECT ${variables.databaseName}.add_categoria_comunicado(${data.idComunicado}, ${data.idCategoria});`;
+	//let sql = `SELECT ${variables.databaseName}.add_categoria_comunicado(17, 5)`;
 	try {
 		pool.getConnection(function (err, connection) {
 			if (err) throw err;
@@ -531,8 +531,8 @@ app.route(`/${variables.baseName}/addCategoriaComunicado`).post(async function (
 
 app.route(`/${variables.baseName}/deleteCategoriaComunicado`).post(async function (req, res) {
 	const data = req.body;
-	// let sql = `SELECT ${variables.databaseName}.delete_categoria_comunicado(${data.idComunicado}, ${data.idCategoria});`;
-	let sql = `SELECT ${variables.databaseName}.delete_categoria_comunicado(1, 333)`;
+	let sql = `SELECT ${variables.databaseName}.delete_categoria_comunicado(${data.idComunicado}, ${data.idCategoria});`;
+	//let sql = `SELECT ${variables.databaseName}.delete_categoria_comunicado(1, 333)`;
 	try {
 		pool.getConnection(function (err, connection) {
 			if (err) throw err;
