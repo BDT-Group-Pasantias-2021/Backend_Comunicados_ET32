@@ -472,9 +472,12 @@ app.route(`/${variables.baseName}/insertComunicado`).post(async function (req, r
 				if (err) throw err;
 
 				let queryResult = Object.values(JSON.parse(JSON.stringify(result[0])));
+				let stringResult = JSON.stringify(queryResult).split('"')[1];
+				console.log(stringResult);
+				console.log(stringResult.split(','));
 
 				//1: realizado, 2: emisor no existe, 3: título entre 5 y 50 caracteres, 4: descripcion de al menos 5, 5: curso no existe
-				let response = { status: parseInt(queryResult) };
+				let response = { status: stringResult.split(',')[0], id_comunicado: stringResult.split(',')[1] };
 				res.json(response);
 			});
 			connection.release();
