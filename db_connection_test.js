@@ -232,6 +232,27 @@ app.route(`/${variables.baseName}/setNewPassword`).post(function (req, res) {
 		res.json(response);
 	}
 });
+// Enviar imagen al frontend
+app.route(`/${variables.baseName}/getProfileImage`).post(function (req, res) {
+	let data = req.body;
+	let sqlNombre = `select foto_perfil from personas where email = ${data.email}`;
+		console.log(sqlNombre);
+	try {
+			pool.getConnection(function (err, connection) {
+				if (err) throw err;
+				connection.query(sqlNombre, function (err, result) {
+					if (err) throw err;
+					
+					console.log(result[0].foto_perfil);
+					res.send(result[0].foto_perfil);
+				});
+			});
+		} catch (error) {
+			console.log(error);
+			reject(error);
+		}
+
+	});
 
 app.route(`/${variables.baseName}/validateSession`).post(function (req, res) {
 	let data = req.body;
