@@ -232,10 +232,10 @@ app.route(`/${variables.baseName}/setNewPassword`).post(function (req, res) {
 		res.json(response);
 	}
 });
-// Enviar imagen al frontend
-app.route(`/${variables.baseName}/getProfileImage`).post(function (req, res) {
+// Enviar informacion de la cuenta al frontend
+app.route(`/${variables.baseName}/getAccountInfo`).post(function (req, res) {
 	let data = req.body;
-	let sqlNombre = `select foto_perfil from personas where email = ${data.email}`;
+	let sqlNombre = `select foto_perfil,nombre,apellido from personas where email = ${data.email}`;
 		console.log(sqlNombre);
 	try {
 			pool.getConnection(function (err, connection) {
@@ -243,8 +243,8 @@ app.route(`/${variables.baseName}/getProfileImage`).post(function (req, res) {
 				connection.query(sqlNombre, function (err, result) {
 					if (err) throw err;
 					
-					console.log(result[0].foto_perfil);
-					res.send(result[0].foto_perfil);
+					console.log(result[0]);
+					res.send(result[0]);
 				});
 			});
 		} catch (error) {
@@ -486,6 +486,7 @@ app.route(`/${variables.baseName}/search_titulo_comunicados`).post(async functio
 app.route(`/${variables.baseName}/insertComunicado`).post(async function (req, res) {
 	const data = req.body;
 	let sql = `SELECT ${variables.databaseName}.insert_comunicado("${data.emisor}", "${data.titulo}", "${data.descripcion}", ${data.cursoReceptor});`;
+	console.log(sql);
 	try {
 		pool.getConnection(function (err, connection) {
 			if (err) throw err;
@@ -507,7 +508,7 @@ app.route(`/${variables.baseName}/insertComunicado`).post(async function (req, r
 
 app.route(`/${variables.baseName}/deleteComunicado`).post(async function (req, res) {
 	const data = req.body;
-	let sql = `SELECT ${variables.databaseName}.delete_comunicado("${data.emisor}", ${data.idComunicado});`;
+	let sql = `SELECT ${variables.databaseName}.delete_comunicado(${data.emisor}, ${data.idComunicado});`;
 	try {
 		pool.getConnection(function (err, connection) {
 			if (err) throw err;
